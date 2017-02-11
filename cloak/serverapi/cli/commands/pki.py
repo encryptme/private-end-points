@@ -5,7 +5,7 @@ import subprocess
 
 from cloak.serverapi.server import Server, PKI
 
-from .base import BaseCommand, CommandError
+from ._base import BaseCommand, CommandError
 
 
 class Command(BaseCommand):

@@ -7,6 +7,7 @@ Most clients will want to include the 'auth' keyword argument with credentials.
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 from requests import Session
+from six.moves import xrange
 from six.moves.urllib.parse import urljoin
 
 import cloak.serverapi as defaults

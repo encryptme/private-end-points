@@ -5,7 +5,7 @@ import socket
 
 from cloak.serverapi.server import Server
 
-from .base import BaseCommand, CommandError
+from ._base import BaseCommand, CommandError
 
 
 class Command(BaseCommand):
@@ -24,7 +24,7 @@ class Command(BaseCommand):
         group.add_argument('-n', '--name', default=socket.getfqdn(), help="The name of this server. [%(default)s]")
 
     def handle(self, config, email, password, target, name, **options):
-        if config.get('serverapi', 'server_id') is not None:
+        if config.get('serverapi', 'server_id', fallback=None) is not None:
             raise CommandError("This server is already registered. If you've unregistered it from your team dashboard, you can delete {}".format(options['config_path']))
 
         if email is None:
@@ -39,4 +39,4 @@ class Command(BaseCommand):
         config.set('serverapi', 'server_id', server.server_id)
         config.set('serverapi', 'auth_token', server.auth_token)
 
-        print(server.server_id)
+        print(server.server_id, file=self.stdout)

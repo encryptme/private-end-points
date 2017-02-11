@@ -1,5 +1,7 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+import sys
+
 
 class BaseCommand(object):
     brief = None
@@ -56,20 +58,29 @@ class BaseCommand(object):
         """
         target = server.target
 
-        print("Target: {} ({})".format(target.name, target.target_id))
-        print("Server: {} ({})".format(server.name, server.server_id))
-        print()
+        print("Target: {} ({})".format(target.name, target.target_id), file=self.stdout)
+        print("Server: {} ({})".format(server.name, server.server_id), file=self.stdout)
+        print(file=self.stdout)
 
         for openvpn in target.openvpn:
             print("OpenVPN: {}  {}/{}  {}/{}".format(
                 openvpn.fqdn, openvpn.proto, openvpn.port,
                 openvpn.cipher, openvpn.digest
-            ))
+            ), file=self.stdout)
 
         for ikev2 in target.ikev2:
             print("IKEv2: {}  leftid: {}  rightca: {}".format(
                 ikev2.fqdn, ikev2.server_id, ikev2.client_ca_dn
-            ))
+            ), file=self.stdout)
+
+    #
+    # Internal
+    #
+
+    def __init__(self, stdin=sys.stdin, stdout=sys.stdout, stderr=sys.stderr):
+        self.stdin = stdin
+        self.stdout = stdout
+        self.stderr = stderr
 
 
 class CommandError(Exception):

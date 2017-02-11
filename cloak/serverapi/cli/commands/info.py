@@ -2,7 +2,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 from cloak.serverapi.server import Server
 
-from .base import BaseCommand
+from ._base import BaseCommand
 
 
 class Command(BaseCommand):

@@ -9,7 +9,7 @@ import sys
 import six
 from six.moves.configparser import RawConfigParser
 
-from cloak.serverapi.cli.commands.base import CommandError
+from cloak.serverapi.cli.commands._base import CommandError
 from cloak.serverapi.errors import ServerApiError
 
 
@@ -21,9 +21,11 @@ COMMANDS = [
 ]
 
 
-def main(argv=None):
+def main(argv=None, stdin=sys.stdin, stdout=sys.stdin, stderr=sys.stdin):
+    returncode = 0
+
     try:
-        args = parse_args(argv)
+        args = parse_args(argv, stdin, stdout, stderr)
         config = get_config(args.config_path)
 
         args.cmd.handle(config=config, **vars(args))
@@ -34,17 +36,19 @@ def main(argv=None):
         try:
             result = e.response.json()
         except ValueError:
-            print(six.text_type(e), file=sys.stderr)
+            print(six.text_type(e), file=stderr)
         else:
             for field, errors in result.get('errors').items():
                 for error in errors:
-                    print("Error:", error['message'], file=sys.stderr)
+                    print("Error:", error['message'], file=stderr)
     except CommandError as e:
-        print(six.text_type(e), file=sys.stderr)
-        exit(1)
+        print(six.text_type(e), file=stderr)
+        returncode = 1
+
+    return returncode
 
 
-def parse_args(argv=None):
+def parse_args(argv, stdin, stdout, stderr):
     parser = argparse.ArgumentParser(
         prog='cloak-server',
     )
@@ -56,7 +60,7 @@ def parse_args(argv=None):
     subparsers = parser.add_subparsers(description="Pass -h to one of the subcommands for more information.")
     for name in COMMANDS:
         mod = import_module('.{}'.format(name), 'cloak.serverapi.cli.commands')
-        cmd = mod.Command()
+        cmd = mod.Command(stdin, stdout, stderr)
         sub = subparsers.add_parser(
             name, help=cmd.brief, description=cmd.description,
             epilog=cmd.epilog

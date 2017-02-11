@@ -7,7 +7,7 @@ import six
 
 from cloak.serverapi.server import Server
 
-from .base import BaseCommand, CommandError
+from ._base import BaseCommand, CommandError
 
 
 class Command(BaseCommand):
@@ -26,7 +26,7 @@ class Command(BaseCommand):
         success = server.request_certificate(key_pem)
 
         if success:
-            print("A new certificate has been requested. This request must be approved on your team dashboard.")
+            print("A new certificate has been requested. This request must be approved on your team dashboard.", file=self.stdout)
         else:
             raise CommandError("An unknown error occurred while trying to request a certificate.")
 

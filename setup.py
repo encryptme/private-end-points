@@ -21,4 +21,5 @@ setup(
     packages=find_packages(),
     namespace_packages=['cloak'],
     scripts=['bin/cloak-server'],
+    test_suite='cloak.serverapi.tests',
 )
