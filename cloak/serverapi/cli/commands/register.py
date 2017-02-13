@@ -3,6 +3,8 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 from getpass import getpass
 import socket
 
+from six.moves.configparser import NoOptionError
+
 from cloak.serverapi.server import Server
 
 from ._base import BaseCommand, CommandError
@@ -24,7 +26,11 @@ class Command(BaseCommand):
         group.add_argument('-n', '--name', default=socket.getfqdn(), help="The name of this server. [%(default)s]")
 
     def handle(self, config, email, password, target, name, **options):
-        if config.get('serverapi', 'server_id', fallback=None) is not None:
+        try:
+            config.get('serverapi', 'server_id')
+        except NoOptionError:
+            pass
+        else:
             raise CommandError("This server is already registered. If you've unregistered it from your team dashboard, you can delete {}".format(options['config_path']))
 
         if email is None:

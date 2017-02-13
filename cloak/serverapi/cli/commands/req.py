@@ -54,8 +54,8 @@ class Command(BaseCommand):
 
     def _generate_key(self, path):
         try:
-            with open(path, 'w') as f:
-                privkey, _ = asymmetric.generate_pair('rsa', bit_size=2048)
+            with open(path, 'wb') as f:
+                _, privkey = asymmetric.generate_pair('rsa', bit_size=2048)
                 key_pem = asymmetric.dump_private_key(privkey, None, 'pem')
                 f.write(key_pem)
         except IOError:

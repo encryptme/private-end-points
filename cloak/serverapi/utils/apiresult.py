@@ -26,9 +26,14 @@ class SubResult(object):
     def __get__(self, instance, owner):
         if instance is not None:
             if self.is_list:
-                value = [self.constructor(result) for result in instance._result[self.key]]
+                value = [
+                    self.constructor(result) if (result is not None) else result
+                    for result in instance[self.key]
+                ]
             else:
-                value = self.constructor(instance._result[self.key])
+                value = instance[self.key]
+                if value is not None:
+                    value = self.constructor(value)
 
             instance[self.key] = value
             delattr(instance, self.key)

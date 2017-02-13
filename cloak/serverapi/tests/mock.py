@@ -11,6 +11,7 @@ import string
 
 import requests
 from six.moves import xrange
+from six.moves.urllib.parse import parse_qs
 
 import cloak.serverapi as defaults
 
@@ -36,8 +37,12 @@ class MockSession(object):
         self.name = None
         self.target_id = None
 
+        self.csr = None
+        self.pki_etag = None
+
     def get(self, url, **kwargs):
         request = requests.Request('GET', url, **kwargs)
+        request = self.session.prepare_request(request)
 
         path = self._url_path(url)
         if path == 'server/':
@@ -51,6 +56,7 @@ class MockSession(object):
 
     def post(self, url, **kwargs):
         request = requests.Request('POST', url, **kwargs)
+        request = self.session.prepare_request(request)
 
         path = self._url_path(url)
         if path == 'servers/':
@@ -67,21 +73,60 @@ class MockSession(object):
     #
 
     def _get_server(self, request):
-        pass
+        if self._authenticate(request):
+            result = self._server_result()
+            response = self._response(request, 200, result)
+        else:
+            response = self._response(request, 401)
+
+        return response
 
     def _get_server_pki(self, request):
-        pass
+        if self._authenticate(request):
+            if request.headers.get('If-None-Match', '') == self.pki_etag:
+                response = self._response(request, 304)
+            elif self.csr is None:
+                result = {
+                    'entity': None, 'intermediates': [], 'extras': [],
+                    'anchors': [], 'crls': [],
+                }
+                response = self._response(request, 200, result)
+            else:
+                result = {
+                    'entity': self._cert_result('entity'),
+                    'intermediates': [
+                        self._cert_result('intermediate1'),
+                        self._cert_result('intermediate2'),
+                    ],
+                    'extras': [
+                        self._cert_result('extra1'),
+                    ],
+                    'anchors': [
+                        self._cert_result('anchor1'),
+                    ],
+                    'crls': [
+                        'http://crl.example.com/server.crl'
+                    ],
+                }
+                headers = {'ETag': self.pki_etag}
+                response = self._response(request, 200, result, headers=headers)
+        else:
+            response = self._response(request, 401)
+
+        return response
 
     def _post_servers(self, request):
-        self.server_id = 'srv_' + ''.join(random.choice(lower_alphabet) for i in xrange(16))
+        data = parse_qs(request.body)
+
+        self.server_id = self._public_id('srv')
         self.auth_token = ''.join(random.choice(mixed_alphabet) for i in xrange(20))
         self.api_version = request.headers['X-Cloak-API-Version']
-        self.name = request.data['name']
-        self.target_id = request.data['target']
+        self.name = data['name'][0]
+        self.target_id = data['target'][0]
 
         # Make sure these exist
-        request.data['email']
-        request.data['password']
+        data['email'][0]
+        data['password'][0]
 
         result = {
             'server_id': self.server_id,
@@ -92,11 +137,23 @@ class MockSession(object):
         return self._response(request, 201, result)
 
     def _post_server_csr(self, request):
-        pass
+        data = parse_qs(request.body)
+
+        if self._authenticate(request):
+            self.csr = data['csr'][0]
+            self.pki_etag = ''.join(random.choice(mixed_alphabet) for i in xrange(16))
+            response = self._response(request, 202)
+        else:
+            response = self._response(request, 401)
+
+        return response
 
     #
     # Utils
     #
+
+    def _public_id(self, prefix):
+        return '{}_{}'.format(prefix, ''.join(random.choice(lower_alphabet) for i in xrange(16)))
 
     def _url_path(self, url):
         if url.startswith(defaults.base_url):
@@ -107,8 +164,11 @@ class MockSession(object):
         return path
 
     def _authenticate(self, request):
-        server_id, auth_token = b64decode(request.headers['Authorization'][6:]).split(':')
-        authenticated = (server_id == self.server_id) and (auth_token == self._auth_token)
+        authorization = request.headers['Authorization']
+        decoded = b64decode(authorization[6:].encode('ascii')).decode('ascii')
+        server_id, auth_token = decoded.split(':')
+
+        authenticated = (server_id == self.server_id) and (auth_token == self.auth_token)
 
         return authenticated
 
@@ -132,9 +192,10 @@ class MockSession(object):
             'csr_pending': False,
         }
 
-    def _response(self, request, status, result=None, headers={}):
-        request = self.session.prepare_request(request)
+    def _cert_result(self, name='test', serial='012345', pem='<pem>'):
+        return {'name': name, 'serial': serial, 'pem': pem}
 
+    def _response(self, request, status, result=None, headers={}):
         response = requests.Response()
         response.status_code = status
         response.url = request.url

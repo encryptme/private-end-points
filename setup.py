@@ -1,6 +1,16 @@
+#!/usr/bin/env python
+
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+import sys
+
 from setuptools import setup, find_packages
+
+
+if sys.version_info[0] == 2:
+    tests_require = ['mock']
+else:
+    tests_require = []
 
 
 setup(
@@ -10,7 +20,8 @@ setup(
     author_email='hello@getcloak.com',
     description="Tool for configuring private Cloak endpoints.",
     license='BSD',
-    url='https:/1github.com/bbits/cloak-server',
+    url='https://github.com/bbits/cloak-server',
+
     install_requires=[
         'asn1crypto>=0.21.0',
         'csrbuilder>=0.10.1',
@@ -18,8 +29,13 @@ setup(
         'requests>=2.5.1',
         'six>=1.10.0',
     ],
+
     packages=find_packages(),
     namespace_packages=['cloak'],
-    scripts=['bin/cloak-server'],
+    scripts=[
+        'bin/cloak-server'
+    ],
+
     test_suite='cloak.serverapi.tests',
+    tests_require=tests_require,
 )

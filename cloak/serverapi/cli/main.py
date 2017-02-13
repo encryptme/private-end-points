@@ -41,6 +41,7 @@ def main(argv=None, stdin=sys.stdin, stdout=sys.stdin, stderr=sys.stdin):
             for field, errors in result.get('errors').items():
                 for error in errors:
                     print("Error:", error['message'], file=stderr)
+        returncode = 1
     except CommandError as e:
         print(six.text_type(e), file=stderr)
         returncode = 1

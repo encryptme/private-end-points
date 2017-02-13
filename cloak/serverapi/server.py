@@ -7,7 +7,6 @@ from asn1crypto import keys, pem
 from csrbuilder import CSRBuilder
 import six
 
-import cloak.serverapi as defaults
 from cloak.serverapi.utils import http
 from cloak.serverapi.utils.apiresult import ApiResult, SubResult
 
@@ -81,7 +80,7 @@ class Server(ApiResult):
         privkey = keys.PrivateKeyInfo.load(der)
 
         builder = CSRBuilder(
-            {'common_name': six.text_type(defaults.server_id)},
+            {'common_name': six.text_type(self.server_id)},
             privkey.public_key_info
         )
         csr = builder.build(privkey)

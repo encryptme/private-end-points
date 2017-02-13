@@ -3,6 +3,8 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import os.path
 import subprocess
 
+from six.moves.configparser import NoOptionError
+
 from cloak.serverapi.server import Server, PKI
 
 from ._base import BaseCommand, CommandError
@@ -18,12 +20,15 @@ class Command(BaseCommand):
 
     def handle(self, config, out, post_hook, **options):
         server_id, auth_token = self._require_credentials(config)
-        etag = config.get('serverapi', 'pki_etag')
+        try:
+            etag = config.get('serverapi', 'pki_etag')
+        except NoOptionError:
+            etag = None
 
         server = Server.get(server_id, auth_token)
         pki = server.get_pki(etag)
 
-        if pki is not PKI.NOT_MODIFIED:
+        if (pki is not PKI.NOT_MODIFIED) and (pki.entity is not None):
             self._write_pki(pki, out)
 
             if post_hook is not None:
@@ -50,5 +55,5 @@ class Command(BaseCommand):
                 f.write(cert.pem)
 
         with open(os.path.join(out, 'crl_urls.txt'), 'w') as f:
-            for crl in pki.clrs:
+            for crl in pki.crls:
                 print(crl, file=f)

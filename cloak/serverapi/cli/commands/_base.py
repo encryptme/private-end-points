@@ -2,6 +2,8 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import sys
 
+from six.moves.configparser import NoOptionError
+
 
 class BaseCommand(object):
     brief = None
@@ -42,12 +44,14 @@ class BaseCommand(object):
         If the server is not registered, this will raise a CommandError.
 
         """
-        server_id = config.get('serverapi', 'server_id')
-        auth_token = config.get('serverapi', 'auth_token')
-
-        if server_id is None:
+        try:
+            server_id = config.get('serverapi', 'server_id')
+        except NoOptionError:
             raise CommandError("This server is not registered. Use the 'register' command to link it to your team.")
-        if auth_token is None:
+
+        try:
+            auth_token = config.get('serverapi', 'auth_token')
+        except NoOptionError:
             raise CommandError("The config file is missing the authentication token. You may need to re-register the server.")
 
         return (server_id, auth_token)
@@ -60,7 +64,7 @@ class BaseCommand(object):
 
         print("Target: {} ({})".format(target.name, target.target_id), file=self.stdout)
         print("Server: {} ({})".format(server.name, server.server_id), file=self.stdout)
-        print(file=self.stdout)
+        print("", file=self.stdout)
 
         for openvpn in target.openvpn:
             print("OpenVPN: {}  {}/{}  {}/{}".format(
