@@ -6,14 +6,15 @@ import os
 from tempfile import NamedTemporaryFile
 import unittest
 
-try:
-    from unittest import mock
-except ImportError:
-    import mock
+import six
 
 from cloak.serverapi.cli.main import main
+from cloak.serverapi.tests.mock import MockSession
 
-from .mock import MockSession
+if six.PY3:
+    from unittest import mock
+else:
+    import mock
 
 
 class TestCase(unittest.TestCase):

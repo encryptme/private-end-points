@@ -5,11 +5,12 @@ from importlib import import_module
 import os
 import os.path
 import sys
+from typing import IO  # noqa
 
 import six
 from six.moves.configparser import RawConfigParser
 
-from cloak.serverapi.cli.commands._base import CommandError
+from cloak.serverapi.cli.commands._base import BaseCommand, CommandError  # noqa
 from cloak.serverapi.errors import ServerApiError
 
 
@@ -23,6 +24,7 @@ COMMANDS = [
 
 
 def main(argv=None, stdin=sys.stdin, stdout=sys.stdin, stderr=sys.stdin):
+    # type: (List[str], IO[str], IO[str], IO[str]) -> int
     returncode = 0
 
     try:
@@ -51,6 +53,7 @@ def main(argv=None, stdin=sys.stdin, stdout=sys.stdin, stderr=sys.stdin):
 
 
 def parse_args(argv, stdin, stdout, stderr):
+    # type: (List[str], IO[str], IO[str], IO[str]) -> argparse.Namespace
     parser = argparse.ArgumentParser(
         prog='cloak-server',
     )
@@ -61,8 +64,10 @@ def parse_args(argv, stdin, stdout, stderr):
 
     subparsers = parser.add_subparsers(description="Pass -h to one of the subcommands for more information.")
     for name in COMMANDS:
+        cmd = None  # type: BaseCommand
+
         mod = import_module('.{}'.format(name), 'cloak.serverapi.cli.commands')
-        cmd = mod.Command(stdin, stdout, stderr)
+        cmd = getattr(mod, 'Command')(stdin, stdout, stderr)
         sub = subparsers.add_parser(
             name, help=cmd.brief, description=cmd.description,
             epilog=cmd.epilog
@@ -76,6 +81,7 @@ def parse_args(argv, stdin, stdout, stderr):
 
 
 def default_config_path():
+    # type: () -> str
     """
     Returns the path to our working directory.
     """
@@ -90,6 +96,7 @@ def default_config_path():
 
 
 def get_config(path):
+    # type: (str) -> RawConfigParser
     """
     Returns a ConfigParser with our current configuration.
     """

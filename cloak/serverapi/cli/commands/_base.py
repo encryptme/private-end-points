@@ -1,16 +1,20 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+import argparse  # noqa
+from six.moves.configparser import ConfigParser, NoOptionError  # noqa
 import sys
+from typing import Any, Tuple, IO  # noqa
 
-from six.moves.configparser import NoOptionError
+from cloak.serverapi.server import Server  # noqa
 
 
 class BaseCommand(object):
-    brief = None
-    description = None
-    epilog = None
+    brief = None  # type: str
+    description = None  # type: str
+    epilog = None  # type: str
 
     def add_arguments(self, parser, group):
+        # type: (argparse.ArgumentParser, argparse._ArgumentGroup) -> None
         """
         Subclasses should add arguments here.
 
@@ -23,6 +27,7 @@ class BaseCommand(object):
         """
 
     def handle(self, config, **options):
+        # type: (ConfigParser, **Any) -> None
         """
         Subclasses implement this to execute the command.
 
@@ -38,6 +43,7 @@ class BaseCommand(object):
     #
 
     def _require_credentials(self, config):
+        # type: (ConfigParser) -> Tuple[str, str]
         """
         Returns (server_id, auth_token) from our config file.
 
@@ -57,6 +63,7 @@ class BaseCommand(object):
         return (server_id, auth_token)
 
     def _print_server(self, server):
+        # type: (Server) -> None
         """
         Prints information in a Server instance to stdout.
         """
@@ -82,6 +89,7 @@ class BaseCommand(object):
     #
 
     def __init__(self, stdin=sys.stdin, stdout=sys.stdout, stderr=sys.stderr):
+        # type: (IO[str], IO[str], IO[str]) -> None
         self.stdin = stdin
         self.stdout = stdout
         self.stderr = stderr

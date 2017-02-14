@@ -2,6 +2,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 from base64 import b64encode
 import socket
+from typing import Tuple, Any  # noqa
 
 from asn1crypto import keys, pem
 from csrbuilder import CSRBuilder
@@ -17,8 +18,8 @@ default_api_version = '2017-01-01'
 
 class Server(ApiResult):
     # Populated on instances.
-    server_id = None
-    auth_token = None
+    server_id = None  # type: str
+    auth_token = None  # type: str
 
     #
     # Constructors
@@ -26,6 +27,7 @@ class Server(ApiResult):
 
     @classmethod
     def register(cls, email, password, target_id, name=None, api_version=default_api_version):
+        # type: (str, str, str, str, str) -> Server
         """
         Registers a new server to a team.
 
@@ -55,7 +57,8 @@ class Server(ApiResult):
         return cls(server_id, auth_token, server_result)
 
     @classmethod
-    def get(cls, server_id, auth_token):
+    def retrieve(cls, server_id, auth_token):
+        # type: (str, str) -> Server
         """
         Retrieves the state of an existing server.
         """
@@ -68,6 +71,7 @@ class Server(ApiResult):
     #
 
     def request_certificate(self, key_pem):
+        # type: (str) -> bool
         """
         Requests a new certificate for this server.
 
@@ -94,6 +98,7 @@ class Server(ApiResult):
         return True
 
     def get_pki(self, etag=None):
+        # type: (str) -> object
         """
         Retrieves the server's current PKI information.
 
@@ -130,6 +135,7 @@ class Server(ApiResult):
     #
 
     def __init__(self, server_id, auth_token, *args, **kwargs):
+        # type: (str, str, *Any, **Any) -> None
         self.server_id = server_id
         self.auth_token = auth_token
 
@@ -137,6 +143,7 @@ class Server(ApiResult):
 
     @property
     def _api_auth(self):
+        # type: () -> Tuple[str, str]
         return (self.server_id, self.auth_token)
 
 
@@ -144,7 +151,7 @@ class PKI(ApiResult):
     NOT_MODIFIED = object()
 
     # Populated on instances.
-    etag = None
+    etag = None  # type: str
 
     entity = SubResult('entity', ApiResult)
     intermediates = SubResult('intermediates', ApiResult, is_list=True)

@@ -28,6 +28,7 @@ setup(
         'oscrypto>=0.18.0',
         'requests>=2.5.1',
         'six>=1.10.0',
+        'typing',
     ],
 
     packages=find_packages(),

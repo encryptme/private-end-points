@@ -12,6 +12,6 @@ class Command(BaseCommand):
     def handle(self, config, **options):
         server_id, auth_token = self._require_credentials(config)
 
-        server = Server.get(server_id, auth_token)
+        server = Server.retrieve(server_id, auth_token)
 
         self._print_server(server)

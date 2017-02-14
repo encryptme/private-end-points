@@ -3,9 +3,10 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 from hashlib import sha1
 import os.path
 import subprocess
+from typing import Any, List, Dict  # noqa
 
 import requests
-from six.moves.configparser import NoOptionError
+from six.moves.configparser import ConfigParser, NoOptionError  # noqa
 from six.moves.urllib.parse import urlsplit
 
 from ._base import BaseCommand, CommandError
@@ -42,10 +43,11 @@ class Command(BaseCommand):
                 raise CommandError("{} exited with status {}".format(post_hook, returncode))
 
     def _fetch_crl(self, config, url, out):
+        # type: (ConfigParser, str, str) -> bool
         updated = False
 
         url_hash = sha1(url.encode('utf-8')).hexdigest()
-        headers = {}
+        headers = {}  # type: Dict[str, str]
 
         try:
             etag = config.get(CONFIG_SECTION, url_hash)

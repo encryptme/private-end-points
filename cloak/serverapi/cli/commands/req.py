@@ -22,7 +22,7 @@ class Command(BaseCommand):
 
         key_pem = self._load_key(six.text_type(key))
 
-        server = Server.get(server_id, auth_token)
+        server = Server.retrieve(server_id, auth_token)
         success = server.request_certificate(key_pem)
 
         if success:
@@ -35,6 +35,7 @@ class Command(BaseCommand):
     #
 
     def _load_key(self, path):
+        # type: (str) -> str
         if os.path.exists(path):
             key_pem = self._read_key(path)
         else:
@@ -43,6 +44,7 @@ class Command(BaseCommand):
         return key_pem
 
     def _read_key(self, path):
+        # type: (str) -> str
         try:
             privkey = asymmetric.load_private_key(path)
         except Exception as e:
@@ -53,6 +55,7 @@ class Command(BaseCommand):
         return key_pem
 
     def _generate_key(self, path):
+        # type: (str) -> str
         try:
             with open(path, 'wb') as f:
                 _, privkey = asymmetric.generate_pair('rsa', bit_size=2048)

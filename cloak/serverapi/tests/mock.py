@@ -8,8 +8,10 @@ import io
 import json
 import random
 import string
+from typing import Any, Dict  # noqa
 
 import requests
+import six
 from six.moves import xrange
 from six.moves.urllib.parse import parse_qs
 
@@ -29,40 +31,43 @@ class MockSession(object):
 
     """
     def __init__(self):
+        # type: () -> None
         self.session = requests.Session()
 
-        self.server_id = None
-        self.auth_token = None
-        self.api_version = None
-        self.name = None
-        self.target_id = None
+        self.server_id = None    # type: str
+        self.auth_token = None   # type: str
+        self.api_version = None  # type: str
+        self.name = None         # type: str
+        self.target_id = None    # type: str
 
-        self.csr = None
-        self.pki_etag = None
+        self.csr = None          # type: str
+        self.pki_etag = None     # type: str
 
     def get(self, url, **kwargs):
+        # type: (str, **Any) -> requests.Response
         request = requests.Request('GET', url, **kwargs)
-        request = self.session.prepare_request(request)
+        prepped = self.session.prepare_request(request)
 
         path = self._url_path(url)
         if path == 'server/':
-            response = self._get_server(request)
+            response = self._get_server(prepped)
         elif path == 'server/pki/':
-            response = self._get_server_pki(request)
+            response = self._get_server_pki(prepped)
         else:
             raise NotImplementedError(('GET', path))
 
         return response
 
     def post(self, url, **kwargs):
+        # type: (str, **Any) -> requests.Response
         request = requests.Request('POST', url, **kwargs)
-        request = self.session.prepare_request(request)
+        prepped = self.session.prepare_request(request)
 
         path = self._url_path(url)
         if path == 'servers/':
-            response = self._post_servers(request)
+            response = self._post_servers(prepped)
         elif path == 'server/csr/':
-            response = self._post_server_csr(request)
+            response = self._post_server_csr(prepped)
         else:
             raise NotImplementedError(('POST', path))
 
@@ -73,6 +78,7 @@ class MockSession(object):
     #
 
     def _get_server(self, request):
+        # type: (requests.PreparedRequest) -> requests.Response
         if self._authenticate(request):
             result = self._server_result()
             response = self._response(request, 200, result)
@@ -82,6 +88,7 @@ class MockSession(object):
         return response
 
     def _get_server_pki(self, request):
+        # type: (requests.PreparedRequest) -> requests.Response
         if self._authenticate(request):
             if request.headers.get('If-None-Match', '') == self.pki_etag:
                 response = self._response(request, 304)
@@ -89,7 +96,7 @@ class MockSession(object):
                 result = {
                     'entity': None, 'intermediates': [], 'extras': [],
                     'anchors': [], 'crls': [],
-                }
+                }  # type: Dict[str, Any]
                 response = self._response(request, 200, result)
             else:
                 result = {
@@ -116,11 +123,12 @@ class MockSession(object):
         return response
 
     def _post_servers(self, request):
-        data = parse_qs(request.body)
+        # type: (requests.PreparedRequest) -> requests.Response
+        data = parse_qs(six.text_type(request.body))
 
         self.server_id = self._public_id('srv')
         self.auth_token = ''.join(random.choice(mixed_alphabet) for i in xrange(20))
-        self.api_version = request.headers['X-Cloak-API-Version']
+        self.api_version = six.text_type(request.headers['X-Cloak-API-Version'])
         self.name = data['name'][0]
         self.target_id = data['target'][0]
 
@@ -137,7 +145,8 @@ class MockSession(object):
         return self._response(request, 201, result)
 
     def _post_server_csr(self, request):
-        data = parse_qs(request.body)
+        # type: (requests.PreparedRequest) -> requests.Response
+        data = parse_qs(six.text_type(request.body))
 
         if self._authenticate(request):
             self.csr = data['csr'][0]
@@ -153,6 +162,7 @@ class MockSession(object):
     #
 
     def _public_id(self, prefix):
+        # type: (str) -> str
         return '{}_{}'.format(prefix, ''.join(random.choice(lower_alphabet) for i in xrange(16)))
 
     def _url_path(self, url):
@@ -164,7 +174,8 @@ class MockSession(object):
         return path
 
     def _authenticate(self, request):
-        authorization = request.headers['Authorization']
+        # type: (requests.PreparedRequest) -> bool
+        authorization = six.text_type(request.headers['Authorization'])
         decoded = b64decode(authorization[6:].encode('ascii')).decode('ascii')
         server_id, auth_token = decoded.split(':')
 
@@ -173,6 +184,7 @@ class MockSession(object):
         return authenticated
 
     def _server_result(self):
+        # type: () -> Dict[str, Any]
         """ Hard-coded example server result structure. """
         return {
             'server_id': self.server_id,
@@ -193,9 +205,11 @@ class MockSession(object):
         }
 
     def _cert_result(self, name='test', serial='012345', pem='<pem>'):
+        # type: (str, str, str) -> Dict[str, str]
         return {'name': name, 'serial': serial, 'pem': pem}
 
     def _response(self, request, status, result=None, headers={}):
+        # type: (requests.PreparedRequest, int, Any, Dict[str, str]) -> requests.Response
         response = requests.Response()
         response.status_code = status
         response.url = request.url

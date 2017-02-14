@@ -25,7 +25,7 @@ class Command(BaseCommand):
         except NoOptionError:
             etag = None
 
-        server = Server.get(server_id, auth_token)
+        server = Server.retrieve(server_id, auth_token)
         pki = server.get_pki(etag)
 
         if (pki is not PKI.NOT_MODIFIED) and (pki.entity is not None):
@@ -39,6 +39,7 @@ class Command(BaseCommand):
             config.set('serverapi', 'pki_etag', pki.etag)
 
     def _write_pki(self, pki, out):
+        # type: (PKI, str) -> None
         with open(os.path.join(out, 'server.pem'), 'w') as f:
             f.write(pki.entity.pem)
 
