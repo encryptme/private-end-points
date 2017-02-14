@@ -1,2 +1,4 @@
-.eggs
-.tox
+/.eggs
+/.tox
+/build
+/dist
