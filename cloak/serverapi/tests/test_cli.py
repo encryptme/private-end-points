@@ -272,3 +272,68 @@ class PKITestCase(TestCase):
         self.assertFalse(os.path.exists(self.hook_path))
 
     privkey_rsa_2048 = b'-----BEGIN PRIVATE KEY-----\nMIIEwAIBADANBgkqhkiG9w0BAQEFAASCBKowggSmAgEAAoIBAQC7eUdE6MAUMmpF\nku2W9MQnU6V+1q17stlITuNF8zhb4HbplX+Lx8soxnRvY6Hn/uP6IIIi3jNim7vv\nruG53VO/CTSiHgg4wf3rO9Lpy8wIIgQwoUBDrOqsGYlJYK8sc1gEsROA9YdAYSgJ\nrm9luF2bmRho92eFCqzq/2dIgNqT5I2WnwvZSW9cup+BzULfwvXF3QXAzTphGhf+\nsDTdgyd7v3dHRHiyVTva3FICuWgtklDBqcP7GrX/TofPal3/Q6asgHc3UxhWPznY\nFYf73SMpwk7SVFXybW0i8kh0oOk6VVODMThrQnHNpU3sfwqc+ZEFMgFWnOg5sh22\nWbQWZQjdAgMBAAECggEBALg610mlfFScsoiKecb14+lNrv21U6iSuinvtDJicIkB\nTXoAOuYPQdthIrzv6QSGHF0KIzjGqTKHHinM7u/qy0iZcEq8PpIgOTo4gOzWJDv9\nyaZMYE3hGIBlW99rDtocw2tg5Gy/W9ltYJ4a+Ee65OpqiW1layp3sjQBJus+DQ51\nRNAefYOo8UrQGFCzDUgH+QUOCTImbD6sVttDI0DojDM8slPOjdb3ZMRO+esQS0Q/\nzoO3f9dCe0VDBRbgJvRGMs+z/TzqqhSqbZwJDFs3e3ItZyXdz8eaGxfsH4et2PFd\nbAjSuBScbYXQWMTYCNdFgNVQ+5hGkAnolxduAFylnLUCgYEA7DBdp67Q4IpNtuKE\nh1OEQZ5pW7Qi/KpHyqXIsiscsBCgV6wdU38C+KW16gz3Sowc7Wry+cRjJQzF5Cqj\nxw8GcO/+OSqmjOTeHBcPKs2Pp4YnZ+0Bo0jfKSg8/gN/aHi607VavusOLIPzgv6V\nr62RViE5rQHK0waZBG6WQrXn+e8CgYEAyzLcoZcsMOLuk18wszQ77tcoPf9DTsIo\n5hM+NeVzm3fit7LG0TonRC7DZYoBAaQJuxujUXqcu6jTIPeIndRPc2FuWhPQPWzC\nJ/S2dy0WQ5bhvhh7Jw9Ko/2a5SsdP0yxuCwQwIUw1O8zawpWW6xeL1P6O9k01fGr\n6AS4osFg5fMCgYEAjuMzxZ4c/7qsCVhAlR4RhSEw3Cm+gN0DUbW6FQ+/60QjvOaD\nV2AfjA20YEQ31wGs/nUVScVltaRklAS30FVmsCyAwFTtLY/IT3Yj1uFFZzPh4x2f\nQAl1+JA/Ve0Hx0xCupGctKO/j27EgxtBs2Zt5o1zNxc+fSwgpm3AudsS3EECgYEA\nnA7zDhPJd75CFuMrxuYeBYAvQvYyHmHWAWXUCJaxpDx93jGqqnQsRhxYKzrDLRxr\n8Mz4MJKnnyS5Cf+yZ+zwHCA/HWVMMHC/6Onz3TG+gKh3tYSdyNDgtXQHq2viaYQg\nld8Z+pIQf+k6J0JoMr3+FAE+FQrrnkiei3Jcz3sPTWsCgYEAkSSunhic1isgO3xo\nX2G2WjWQwOEVlb2XqK5d7aCNwElAvwtKtU78qJxWVWIiStsRNNyq8pTba9DNH9hy\n+v8hSlVExYFjTm1HlpLqFOu3J60vh0A/76O8QT5Pn3gLs6H8OsIxiIK+edqxbO3K\nCberEki3Q3eUI5fua0HCyZrkP/A=\n-----END PRIVATE KEY-----\n'
+
+
+class CRLsTestCase(TestCase):
+    """
+    Breaking the rules and testing with live CRLs.
+    """
+    def setUp(self):
+        super(CRLsTestCase, self).setUp()
+
+        self.out_path = tempfile.mkdtemp()
+        self.crl_path = os.path.join(self.out_path, 'cloak-public-clients.crl')
+        self.hook_path = os.path.join(self.out_path, 'changed.txt')
+        self.addCleanup(partial(shutil.rmtree, self.out_path))
+
+    def test_fetch_crls(self):
+        returncode = self.main([
+            'crls',
+            '--out', self.out_path,
+            '--post-hook', 'touch {}'.format(self.hook_path),
+            'http://crl.getcloak.com/cloak-public-clients.crl',
+            'http://crl.getcloak.com/cloak-public-servers.crl',
+        ])
+
+        self.assertEqual(returncode, 0)
+        self.assertTrue(os.path.exists(self.crl_path))
+        self.assertTrue(os.path.exists(self.hook_path))
+
+    def test_crls_noop(self):
+        self.main([
+            'crls',
+            '--out', self.out_path,
+            'http://crl.getcloak.com/cloak-public-clients.crl',
+            'http://crl.getcloak.com/cloak-public-servers.crl',
+        ])
+        returncode = self.main([
+            'crls',
+            '--out', self.out_path,
+            '--post-hook', 'touch {}'.format(self.hook_path),
+            'http://crl.getcloak.com/cloak-public-clients.crl',
+            'http://crl.getcloak.com/cloak-public-servers.crl',
+        ])
+
+        self.assertEqual(returncode, 0)
+        self.assertTrue(os.path.exists(self.crl_path))
+        self.assertFalse(os.path.exists(self.hook_path))
+
+    def test_hook_fail(self):
+        returncode = self.main([
+            'crls',
+            '--out', self.out_path,
+            '--post-hook', 'false',
+            'http://crl.getcloak.com/cloak-public-clients.crl',
+            'http://crl.getcloak.com/cloak-public-servers.crl',
+        ])
+
+        self.assertNotEqual(returncode, 0)
+
+    def test_bad_url(self):
+        url = 'http://crl.getcloak.com/totally-bogus-crl.crl'
+        returncode = self.main([
+            'crls', '--out', self.out_path, url
+        ])
+
+        self.assertEqual(returncode, 0)
+        self.assertIn(url, self.stderr.getvalue())

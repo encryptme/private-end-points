@@ -18,6 +18,7 @@ COMMANDS = [
     'info',
     'req',
     'pki',
+    'crls',
 ]
 
 
@@ -92,7 +93,7 @@ def get_config(path):
     """
     Returns a ConfigParser with our current configuration.
     """
-    config = RawConfigParser(allow_no_value=True)
+    config = RawConfigParser()
     config.read([path])
 
     if not config.has_section('serverapi'):
