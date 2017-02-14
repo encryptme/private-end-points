@@ -3,6 +3,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 from getpass import getpass
 import socket
 
+from six.moves import input
 from six.moves.configparser import NoOptionError
 
 from cloak.serverapi.server import Server
@@ -34,11 +35,11 @@ class Command(BaseCommand):
             raise CommandError("This server is already registered. If you've unregistered it from your team dashboard, you can delete {}".format(options['config_path']))
 
         if email is None:
-            email = raw_input("Enter your Cloak email: ")
+            email = input("Enter your Cloak email: ")
         if password is None:
             password = getpass("Enter your Cloak password: ")
         if target is None:
-            target = raw_input("Enter the target identifier (from the team dashboard): ")
+            target = input("Enter the target identifier (from the team dashboard): ")
 
         server = Server.register(email, password, target, name)
 

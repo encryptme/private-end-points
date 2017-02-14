@@ -7,14 +7,13 @@ from tempfile import NamedTemporaryFile
 import unittest
 
 import six
-
-from cloak.serverapi.cli.main import main
-from cloak.serverapi.tests.mock import MockSession
-
 if six.PY3:
     from unittest import mock
 else:
     import mock
+
+from cloak.serverapi.cli.main import main
+from cloak.serverapi.tests.mock import MockSession
 
 
 class TestCase(unittest.TestCase):
