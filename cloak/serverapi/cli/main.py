@@ -5,25 +5,26 @@ from importlib import import_module
 import os
 import os.path
 import sys
-from typing import IO  # noqa
 
 import six
 from six.moves.configparser import RawConfigParser
+from typing import IO  # noqa
 
 from cloak.serverapi.cli.commands._base import BaseCommand, CommandError  # noqa
 from cloak.serverapi.errors import ServerApiError
 
 
 COMMANDS = [
-    'register',
-    'info',
-    'req',
-    'pki',
+    'configs',
     'crls',
+    'info',
+    'pki',
+    'register',
+    'req',
 ]
 
 
-def main(argv=None, stdin=sys.stdin, stdout=sys.stdin, stderr=sys.stdin):
+def main(argv=None, stdin=sys.stdin, stdout=sys.stdout, stderr=sys.stderr):
     # type: (List[str], IO[str], IO[str], IO[str]) -> int
     returncode = 0
 

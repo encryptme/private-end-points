@@ -8,12 +8,12 @@ import io
 import json
 import random
 import string
-from typing import Any, Dict  # noqa
 
 import requests
 import six
 from six.moves import xrange
 from six.moves.urllib.parse import parse_qs
+from typing import Any, Dict  # noqa
 
 import cloak.serverapi as defaults
 

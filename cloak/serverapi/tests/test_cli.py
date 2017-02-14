@@ -283,6 +283,7 @@ class CRLsTestCase(TestCase):
 
         self.out_path = tempfile.mkdtemp()
         self.crl_path = os.path.join(self.out_path, 'cloak-public-clients.crl')
+        self.pem_path = os.path.join(self.out_path, 'cloak-public-clients.pem')
         self.hook_path = os.path.join(self.out_path, 'changed.txt')
         self.addCleanup(partial(shutil.rmtree, self.out_path))
 
@@ -290,25 +291,28 @@ class CRLsTestCase(TestCase):
         returncode = self.main([
             'crls',
             '--out', self.out_path,
+            '--format', 'pem',
             '--post-hook', 'touch {}'.format(self.hook_path),
             'http://crl.getcloak.com/cloak-public-clients.crl',
             'http://crl.getcloak.com/cloak-public-servers.crl',
         ])
 
         self.assertEqual(returncode, 0)
-        self.assertTrue(os.path.exists(self.crl_path))
+        self.assertTrue(os.path.exists(self.pem_path))
         self.assertTrue(os.path.exists(self.hook_path))
 
     def test_crls_noop(self):
         self.main([
             'crls',
             '--out', self.out_path,
+            '--format', 'der',
             'http://crl.getcloak.com/cloak-public-clients.crl',
             'http://crl.getcloak.com/cloak-public-servers.crl',
         ])
         returncode = self.main([
             'crls',
             '--out', self.out_path,
+            '--format', 'der',
             '--post-hook', 'touch {}'.format(self.hook_path),
             'http://crl.getcloak.com/cloak-public-clients.crl',
             'http://crl.getcloak.com/cloak-public-servers.crl',
@@ -337,3 +341,26 @@ class CRLsTestCase(TestCase):
 
         self.assertEqual(returncode, 0)
         self.assertIn(url, self.stderr.getvalue())
+
+
+class ConfigsTestCase(TestCase):
+    def setUp(self):
+        super(ConfigsTestCase, self).setUp()
+
+        self.out_path = tempfile.mkdtemp()
+        self.addCleanup(partial(shutil.rmtree, self.out_path))
+
+    def test_configs(self):
+        """ Coverage. """
+        self.main([
+            'register',
+            '-e', 'alice@example.com',
+            '-p', 'password',
+            '-t', 'tgt_z24y7miezisykwi6',
+        ])
+        returncode = self.main([
+            'configs',
+            '--out', self.out_path,
+        ])
+
+        self.assertEqual(returncode, 0)

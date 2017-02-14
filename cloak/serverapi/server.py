@@ -2,11 +2,11 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 from base64 import b64encode
 import socket
-from typing import Tuple, Any  # noqa
 
 from asn1crypto import keys, pem
 from csrbuilder import CSRBuilder
 import six
+from typing import Tuple, Any  # noqa
 
 from cloak.serverapi.utils import http
 from cloak.serverapi.utils.apiresult import ApiResult, SubResult

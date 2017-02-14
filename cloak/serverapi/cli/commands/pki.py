@@ -42,8 +42,6 @@ class Command(BaseCommand):
         # type: (PKI, str) -> None
         with open(os.path.join(out, 'server.pem'), 'w') as f:
             f.write(pki.entity.pem)
-
-        with open(os.path.join(out, 'intermediates.pem'), 'w') as f:
             for cert in pki.intermediates:
                 f.write(cert.pem)
 

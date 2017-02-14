@@ -1,8 +1,9 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import argparse  # noqa
-from six.moves.configparser import ConfigParser, NoOptionError  # noqa
 import sys
+
+from six.moves.configparser import ConfigParser, NoOptionError  # noqa
 from typing import Any, Tuple, IO  # noqa
 
 from cloak.serverapi.server import Server  # noqa
