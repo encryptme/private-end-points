@@ -271,6 +271,36 @@ class PKITestCase(TestCase):
         self.assertFalse(os.path.exists(self.server_cert_path))
         self.assertFalse(os.path.exists(self.hook_path))
 
+    def test_force_download(self):
+        with tempfile.NamedTemporaryFile('wb', 0) as key_file:
+            key_file.write(self.privkey_rsa_2048)
+
+            self.main([
+                'register',
+                '-e', 'alice@example.com',
+                '-p', 'password',
+                '-t', 'tgt_z24y7miezisykwi6',
+            ])
+            self.main([
+                'req', '-k', key_file.name,
+            ])
+            self.main([
+                'pki', '-o', self.out_path
+            ])
+            os.unlink(self.server_cert_path)
+
+            # Should be a no-op because of the etag.
+            returncode = self.main([
+                'pki',
+                '--out', self.out_path,
+                '--force',
+                '--post-hook', 'touch {}'.format(self.hook_path)
+            ])
+
+        self.assertEqual(returncode, 0)
+        self.assertTrue(os.path.exists(self.server_cert_path))
+        self.assertTrue(os.path.exists(self.hook_path))
+
     privkey_rsa_2048 = b'-----BEGIN PRIVATE KEY-----\nMIIEwAIBADANBgkqhkiG9w0BAQEFAASCBKowggSmAgEAAoIBAQC7eUdE6MAUMmpF\nku2W9MQnU6V+1q17stlITuNF8zhb4HbplX+Lx8soxnRvY6Hn/uP6IIIi3jNim7vv\nruG53VO/CTSiHgg4wf3rO9Lpy8wIIgQwoUBDrOqsGYlJYK8sc1gEsROA9YdAYSgJ\nrm9luF2bmRho92eFCqzq/2dIgNqT5I2WnwvZSW9cup+BzULfwvXF3QXAzTphGhf+\nsDTdgyd7v3dHRHiyVTva3FICuWgtklDBqcP7GrX/TofPal3/Q6asgHc3UxhWPznY\nFYf73SMpwk7SVFXybW0i8kh0oOk6VVODMThrQnHNpU3sfwqc+ZEFMgFWnOg5sh22\nWbQWZQjdAgMBAAECggEBALg610mlfFScsoiKecb14+lNrv21U6iSuinvtDJicIkB\nTXoAOuYPQdthIrzv6QSGHF0KIzjGqTKHHinM7u/qy0iZcEq8PpIgOTo4gOzWJDv9\nyaZMYE3hGIBlW99rDtocw2tg5Gy/W9ltYJ4a+Ee65OpqiW1layp3sjQBJus+DQ51\nRNAefYOo8UrQGFCzDUgH+QUOCTImbD6sVttDI0DojDM8slPOjdb3ZMRO+esQS0Q/\nzoO3f9dCe0VDBRbgJvRGMs+z/TzqqhSqbZwJDFs3e3ItZyXdz8eaGxfsH4et2PFd\nbAjSuBScbYXQWMTYCNdFgNVQ+5hGkAnolxduAFylnLUCgYEA7DBdp67Q4IpNtuKE\nh1OEQZ5pW7Qi/KpHyqXIsiscsBCgV6wdU38C+KW16gz3Sowc7Wry+cRjJQzF5Cqj\nxw8GcO/+OSqmjOTeHBcPKs2Pp4YnZ+0Bo0jfKSg8/gN/aHi607VavusOLIPzgv6V\nr62RViE5rQHK0waZBG6WQrXn+e8CgYEAyzLcoZcsMOLuk18wszQ77tcoPf9DTsIo\n5hM+NeVzm3fit7LG0TonRC7DZYoBAaQJuxujUXqcu6jTIPeIndRPc2FuWhPQPWzC\nJ/S2dy0WQ5bhvhh7Jw9Ko/2a5SsdP0yxuCwQwIUw1O8zawpWW6xeL1P6O9k01fGr\n6AS4osFg5fMCgYEAjuMzxZ4c/7qsCVhAlR4RhSEw3Cm+gN0DUbW6FQ+/60QjvOaD\nV2AfjA20YEQ31wGs/nUVScVltaRklAS30FVmsCyAwFTtLY/IT3Yj1uFFZzPh4x2f\nQAl1+JA/Ve0Hx0xCupGctKO/j27EgxtBs2Zt5o1zNxc+fSwgpm3AudsS3EECgYEA\nnA7zDhPJd75CFuMrxuYeBYAvQvYyHmHWAWXUCJaxpDx93jGqqnQsRhxYKzrDLRxr\n8Mz4MJKnnyS5Cf+yZ+zwHCA/HWVMMHC/6Onz3TG+gKh3tYSdyNDgtXQHq2viaYQg\nld8Z+pIQf+k6J0JoMr3+FAE+FQrrnkiei3Jcz3sPTWsCgYEAkSSunhic1isgO3xo\nX2G2WjWQwOEVlb2XqK5d7aCNwElAvwtKtU78qJxWVWIiStsRNNyq8pTba9DNH9hy\n+v8hSlVExYFjTm1HlpLqFOu3J60vh0A/76O8QT5Pn3gLs6H8OsIxiIK+edqxbO3K\nCberEki3Q3eUI5fua0HCyZrkP/A=\n-----END PRIVATE KEY-----\n'
 
 
