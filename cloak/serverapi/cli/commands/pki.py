@@ -2,8 +2,9 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import os.path
 import subprocess
+import time
 
-from six.moves.configparser import NoOptionError
+from six.moves.configparser import ConfigParser, NoOptionError  # noqa
 
 from cloak.serverapi.server import Server, PKI
 
@@ -17,20 +18,19 @@ class Command(BaseCommand):
     def add_arguments(self, parser, group):
         group.add_argument('-o', '--out', help="Where to download the certificates. Defaults to the current directory.")
         group.add_argument('-f', '--force', action='store_true', help="Ignore any existing etag and always download the certificates.")
+        group.add_argument('-w', '--wait', action='store_true', help="If a certificate request is pending, wait for it to be approved.")
         group.add_argument('-p', '--post-hook', help="Command to run if the certificates were updated. This will be run in a shell.")
 
-    def handle(self, config, out, force, post_hook, **options):
+    def handle(self, config, out, force, wait, post_hook, **options):
         server_id, auth_token = self._require_credentials(config)
 
-        if force:
-            etag = None
-        else:
-            try:
-                etag = config.get('serverapi', 'pki_etag')
-            except NoOptionError:
-                etag = None
-
         server = Server.retrieve(server_id, auth_token)
+
+        while wait and server.csr_pending:
+            time.sleep(5)
+            server = Server.retrieve(server_id, auth_token)
+
+        etag = self._get_etag(config) if (not force) else None
         pki = server.get_pki(etag)
 
         if (pki is not PKI.NOT_MODIFIED) and (pki.entity is not None):
@@ -42,6 +42,15 @@ class Command(BaseCommand):
                     raise CommandError("{} exited with status {}".format(post_hook, returncode))
 
             config.set('serverapi', 'pki_etag', pki.etag)
+
+    def _get_etag(self, config):
+        # type: (ConfigParser) -> str
+        try:
+            etag = config.get('serverapi', 'pki_etag')
+        except NoOptionError:
+            etag = None
+
+        return etag
 
     def _write_pki(self, pki, out):
         # type: (PKI, str) -> None

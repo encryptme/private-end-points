@@ -380,8 +380,8 @@ class ConfigsTestCase(TestCase):
         self.out_path = tempfile.mkdtemp()
         self.addCleanup(partial(shutil.rmtree, self.out_path))
 
+    # Coverage
     def test_configs(self):
-        """ Coverage. """
         self.main([
             'register',
             '-e', 'alice@example.com',
