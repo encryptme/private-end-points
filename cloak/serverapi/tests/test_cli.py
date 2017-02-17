@@ -21,6 +21,21 @@ class RegisterTestCase(TestCase):
 
         self.assertEqual(returncode, 0)
         self.assertEqual(self.session.target_id, 'tgt_z24y7miezisykwi6')
+        self.assertNotEqual(self.stdout.getvalue(), '')
+
+    def test_register_quiet(self):
+        returncode = self.main([
+            '--quiet',
+            'register',
+            '-e', 'alice@example.com',
+            '-p', 'password',
+            '-t', 'tgt_z24y7miezisykwi6',
+            '-n', 'srv1.team.example.com',
+        ])
+
+        self.assertEqual(returncode, 0)
+        self.assertEqual(self.session.target_id, 'tgt_z24y7miezisykwi6')
+        self.assertEqual(self.stdout.getvalue(), '')
 
     def test_register_auto_name(self):
         returncode = self.main([
@@ -350,6 +365,7 @@ class CRLsTestCase(TestCase):
         with tempfile.NamedTemporaryFile('wb') as f:
             f.write(b'http://crl.getcloak.com/cloak-public-clients.crl\n')
             f.write(b'http://crl.getcloak.com/cloak-public-servers.crl\n')
+            f.write(b'\n')
             f.flush()
 
             returncode = self.main([

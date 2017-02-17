@@ -38,7 +38,7 @@ class Command(BaseCommand):
 
         if infile is not None:
             with open(infile, 'rt') as f:
-                urls.extend(url.strip() for url in f)
+                urls.extend(filter(None, (url.strip() for url in f)))
 
         any_updated = False
         for url in urls:

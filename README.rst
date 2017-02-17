@@ -101,31 +101,10 @@ contents. As a convenience, we provide a command that will check for updated
 CRLs in a manner similar to the ``pki`` command checking for updated
 certificates:
 
-    cloak-server crls --out /path/to/crls/ --post-hook cloak-crls-updated.sh $(cat /path/to/crl_urls.txt)
+    cloak-server crls --infile /path/to/crl_urls.txt --out /path/to/crls/ --post-hook cloak-crls-updated.sh
 
 This command uses the config file to store an etag for each URL, so you can run
-it fairly frequently.
-
-
-Configs
-~~~~~~~
-
-Cloak servers must run both OpenVPN and strongSwan to serve clients from all
-supported platforms. Many of the configuration parameters can be customized for
-individual team servers, but a few of them must be agreed upon in advance by the
-client and server. This tool provides a command to generate sample VPN configs
-that can then be customized to meet your specific needs:
-
-    cloak-server configs --out /path/to/configs/
-
-These config files will include detailed comments indicating which settings can
-be changed and which should be left alone.
-
-.. note::
-
-    Each target's key parameters are fixed at creation time. Thus, it's not
-    necessary to run this command on every server: for any new target, you can
-    run it once and incorporate the result into your own deployment automation.
+it frequently.
 
 
 Development

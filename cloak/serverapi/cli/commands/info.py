@@ -2,6 +2,8 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import json
 
+import six
+
 from cloak.serverapi.server import Server
 from cloak.serverapi.utils.encoding import force_text
 
@@ -21,6 +23,9 @@ class Command(BaseCommand):
         server = Server.retrieve(server_id, auth_token)
 
         if options['json']:
-            print(force_text(json.dumps(server, indent=2)), file=self.stdout)
+            if six.PY3:
+                json.dump(server, self.stdout)
+            else:
+                print(force_text(json.dumps(server)), file=self.stdout)
         else:
             self._print_server(server)

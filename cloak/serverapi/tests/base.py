@@ -21,7 +21,6 @@ class TestCase(unittest.TestCase):
         super(TestCase, self).setUp()
 
         # Capture stdio.
-        self.stdin = io.StringIO()
         self.stdout = io.StringIO()
         self.stderr = io.StringIO()
 
@@ -43,9 +42,8 @@ class TestCase(unittest.TestCase):
         del os.environ['CLOAK_CONFIG']
 
     def tearDown(self):
-        self.stdin.close()
         self.stdout.close()
         self.stderr.close()
 
     def main(self, argv):
-        return main(argv, self.stdin, self.stdout, self.stderr)
+        return main(argv, self.stdout, self.stderr)

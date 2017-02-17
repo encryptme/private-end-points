@@ -10,6 +10,22 @@ from cloak.serverapi.server import Server  # noqa
 
 
 class BaseCommand(object):
+    """
+    Base class for cloak-server CLI commands.
+
+    To add a new command:
+
+        1. Add a new module next to this one. The name of the module is the
+           name of the command.
+        2. Import this class and subclass it as Command.
+        3. Override add_arguments() if you want to add any arguments. Override
+           handle() to execute the command.
+        4. Add the command to the list at the top of cloak.serverapi.cli.main.
+
+    All commands MUST send output to self.stdout and self.stderr. This is
+    important for testing and to properly support the --quiet flag.
+
+    """
     brief = None  # type: str
     description = None  # type: str
     epilog = None  # type: str
@@ -38,6 +54,7 @@ class BaseCommand(object):
         options: Command arguments.
 
         """
+        raise NotImplementedError()
 
     #
     # Utils
@@ -89,9 +106,8 @@ class BaseCommand(object):
     # Internal
     #
 
-    def __init__(self, stdin=sys.stdin, stdout=sys.stdout, stderr=sys.stderr):
-        # type: (IO[str], IO[str], IO[str]) -> None
-        self.stdin = stdin
+    def __init__(self, stdout=sys.stdout, stderr=sys.stderr):
+        # type: (IO[str], IO[str]) -> None
         self.stdout = stdout
         self.stderr = stderr
 
