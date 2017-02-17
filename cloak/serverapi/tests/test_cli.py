@@ -1,6 +1,7 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 from functools import partial
+import json
 import os.path
 import shutil
 import tempfile
@@ -78,6 +79,20 @@ class InfoTestCase(TestCase):
 
         self.assertEqual(returncode, 0)
         self.assertIn(self.session.server_id, self.stdout.getvalue())
+
+    def test_print_json(self):
+        self.main([
+            'register',
+            '-e', 'alice@example.com',
+            '-p', 'password',
+            '-t', 'tgt_z24y7miezisykwi6',
+        ])
+        self.stdout.seek(0)
+        self.stdout.truncate()
+        returncode = self.main(['info', '--json'])
+
+        self.assertEqual(returncode, 0)
+        json.loads(self.stdout.getvalue())
 
 
 class CSRTestCase(TestCase):
@@ -371,26 +386,3 @@ class CRLsTestCase(TestCase):
 
         self.assertEqual(returncode, 0)
         self.assertIn(url, self.stderr.getvalue())
-
-
-class ConfigsTestCase(TestCase):
-    def setUp(self):
-        super(ConfigsTestCase, self).setUp()
-
-        self.out_path = tempfile.mkdtemp()
-        self.addCleanup(partial(shutil.rmtree, self.out_path))
-
-    # Coverage
-    def test_configs(self):
-        self.main([
-            'register',
-            '-e', 'alice@example.com',
-            '-p', 'password',
-            '-t', 'tgt_z24y7miezisykwi6',
-        ])
-        returncode = self.main([
-            'configs',
-            '--out', self.out_path,
-        ])
-
-        self.assertEqual(returncode, 0)

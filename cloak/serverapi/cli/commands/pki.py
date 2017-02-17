@@ -31,17 +31,11 @@ class Command(BaseCommand):
             server = Server.retrieve(server_id, auth_token)
 
         etag = self._get_etag(config) if (not force) else None
-        pki = server.get_pki(etag)
+        result = server.get_pki(etag)
 
-        if (pki is not PKI.NOT_MODIFIED) and (pki.entity is not None):
-            self._write_pki(pki, out)
-
-            if post_hook is not None:
-                returncode = subprocess.call(post_hook, shell=True)
-                if returncode != 0:
-                    raise CommandError("{} exited with status {}".format(post_hook, returncode))
-
-            config.set('serverapi', 'pki_etag', pki.etag)
+        if result is not PKI.NOT_MODIFIED:
+            self._handle_pki(result, config, out, post_hook)
+            print("Certificates saved to {}.".format(out), file=self.stdout)
 
     def _get_etag(self, config):
         # type: (ConfigParser) -> str
@@ -51,6 +45,18 @@ class Command(BaseCommand):
             etag = None
 
         return etag
+
+    def _handle_pki(self, pki, config, out, post_hook):
+        # type: (PKI, ConfigParser, str, str) -> None
+        if pki.entity is not None:
+            self._write_pki(pki, out)
+
+            if post_hook is not None:
+                returncode = subprocess.call(post_hook, shell=True)
+                if returncode != 0:
+                    raise CommandError("{} exited with status {}".format(post_hook, returncode))
+
+            config.set('serverapi', 'pki_etag', pki.etag)
 
     def _write_pki(self, pki, out):
         # type: (PKI, str) -> None

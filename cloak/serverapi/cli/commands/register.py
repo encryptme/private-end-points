@@ -46,4 +46,4 @@ class Command(BaseCommand):
         config.set('serverapi', 'server_id', server.server_id)
         config.set('serverapi', 'auth_token', server.auth_token)
 
-        print(server.server_id, file=self.stdout)
+        print("This server has been registered. The next step is to request a certificate.", file=self.stdout)

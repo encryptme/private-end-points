@@ -10,12 +10,13 @@ import six
 from six.moves.configparser import RawConfigParser
 from typing import IO  # noqa
 
+import cloak.serverapi.utils.http
 from cloak.serverapi.cli.commands._base import BaseCommand, CommandError  # noqa
 from cloak.serverapi.errors import ServerApiError
+from cloak.serverapi.utils.encoding import force_text
 
 
 COMMANDS = [
-    'configs',
     'crls',
     'info',
     'pki',
@@ -31,6 +32,7 @@ def main(argv=None, stdin=sys.stdin, stdout=sys.stdout, stderr=sys.stderr):
     try:
         args = parse_args(argv, stdin, stdout, stderr)
         config = get_config(args.config_path)
+        cloak.serverapi.utils.http.base_url = config.get('serverapi', 'base_url')
 
         args.cmd.handle(config=config, **vars(args))
 
@@ -40,7 +42,8 @@ def main(argv=None, stdin=sys.stdin, stdout=sys.stdout, stderr=sys.stderr):
         try:
             result = e.response.json()
         except ValueError:
-            print(six.text_type(e), file=stderr)
+            message = e.response.text or force_text(e.response.reason)
+            print(message, file=stderr)
         else:
             for field, errors in result.get('errors').items():
                 for error in errors:
@@ -101,7 +104,11 @@ def get_config(path):
     """
     Returns a ConfigParser with our current configuration.
     """
-    config = RawConfigParser()
+    defaults = {
+        'base_url': 'https://www.getcloak.com/',
+    }
+
+    config = RawConfigParser(defaults)
     config.read([path])
 
     if not config.has_section('serverapi'):

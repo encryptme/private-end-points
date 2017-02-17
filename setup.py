@@ -15,7 +15,7 @@ else:
 
 setup(
     name='cloak-server',
-    version='1.0',
+    version='0.1.3',
     author='Cloak',
     author_email='hello@getcloak.com',
     description="Tool for configuring private Cloak endpoints.",

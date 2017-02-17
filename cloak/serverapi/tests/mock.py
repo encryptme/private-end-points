@@ -10,12 +10,12 @@ import random
 import string
 
 import requests
-import six
 from six.moves import xrange
-from six.moves.urllib.parse import parse_qs
+from six.moves.urllib.parse import parse_qs, urljoin
 from typing import Any, Dict  # noqa
 
-import cloak.serverapi as defaults
+from cloak.serverapi.utils import http
+from cloak.serverapi.utils.encoding import force_text
 
 
 mixed_alphabet = string.ascii_letters + string.digits
@@ -124,11 +124,11 @@ class MockSession(object):
 
     def _post_servers(self, request):
         # type: (requests.PreparedRequest) -> requests.Response
-        data = parse_qs(six.text_type(request.body))
+        data = parse_qs(force_text(request.body))
 
         self.server_id = self._public_id('srv')
         self.auth_token = ''.join(random.choice(mixed_alphabet) for i in xrange(20))
-        self.api_version = six.text_type(request.headers['X-Cloak-API-Version'])
+        self.api_version = force_text(request.headers['X-Cloak-API-Version'])
         self.name = data['name'][0]
         self.target_id = data['target'][0]
 
@@ -146,7 +146,7 @@ class MockSession(object):
 
     def _post_server_csr(self, request):
         # type: (requests.PreparedRequest) -> requests.Response
-        data = parse_qs(six.text_type(request.body))
+        data = parse_qs(force_text(request.body))
 
         if self._authenticate(request):
             self.csr = data['csr'][0]
@@ -166,8 +166,10 @@ class MockSession(object):
         return '{}_{}'.format(prefix, ''.join(random.choice(lower_alphabet) for i in xrange(16)))
 
     def _url_path(self, url):
-        if url.startswith(defaults.base_url):
-            path = url[len(defaults.base_url):]
+        # type: (str) -> str
+        base_url = urljoin(http.base_url, '/api/server/')
+        if url.startswith(base_url):
+            path = url[len(base_url):]
         else:
             path = url
 
@@ -175,7 +177,7 @@ class MockSession(object):
 
     def _authenticate(self, request):
         # type: (requests.PreparedRequest) -> bool
-        authorization = six.text_type(request.headers['Authorization'])
+        authorization = force_text(request.headers['Authorization'])
         decoded = b64decode(authorization[6:].encode('ascii')).decode('ascii')
         server_id, auth_token = decoded.split(':')
 

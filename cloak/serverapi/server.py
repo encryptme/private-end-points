@@ -6,7 +6,7 @@ import socket
 from asn1crypto import keys, pem
 from csrbuilder import CSRBuilder
 import six
-from typing import Tuple, Any  # noqa
+from typing import Tuple, Any, Union  # noqa
 
 from cloak.serverapi.utils import http
 from cloak.serverapi.utils.apiresult import ApiResult, SubResult
@@ -98,7 +98,7 @@ class Server(ApiResult):
         return True
 
     def get_pki(self, etag=None):
-        # type: (str) -> object
+        # type: (str) -> Union[object, PKI]
         """
         Retrieves the server's current PKI information.
 

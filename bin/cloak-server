@@ -1,4 +1,12 @@
-#!/usr/bin/env sh
+#!/usr/bin/env python
+
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import sys
+
+import cloak.serverapi.cli.main
 
 
-python -m cloak.serverapi.cli "$@"
+returncode = cloak.serverapi.cli.main.main()
+if returncode != 0:
+    sys.exit(returncode)

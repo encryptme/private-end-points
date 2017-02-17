@@ -1,6 +1,7 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 from hashlib import sha1
+import os
 import os.path
 import subprocess
 
@@ -25,7 +26,7 @@ class Command(BaseCommand):
     """
 
     def add_arguments(self, parser, group):
-        group.add_argument('-o', '--out', help="Where to download the CRLs. Defaults to the current directory.")
+        group.add_argument('-o', '--out', default=os.getcwd(), help="Where to download the CRLs. Defaults to the current directory.")
         group.add_argument('-f', '--format', dest='fmt', choices=['der', 'pem'], default='pem', help="The format to output. [%(default)s]")
         group.add_argument('-p', '--post-hook', help="Command to run if any CRLs were updated. This will be run in a shell.")
         group.add_argument('urls', nargs='+', metavar='url', help="A CRL to download.")
@@ -66,6 +67,7 @@ class Command(BaseCommand):
             crl_path = os.path.join(out, crl_name)
             with open(crl_path, 'wb') as f:
                 f.write(content)
+            print(crl_path, file=self.stdout)
             updated = True
 
             if 'ETag' in response.headers:
