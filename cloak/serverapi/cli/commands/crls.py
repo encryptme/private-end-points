@@ -26,14 +26,19 @@ class Command(BaseCommand):
     """
 
     def add_arguments(self, parser, group):
+        group.add_argument('-i', '--infile', help="Path to a file with URLs (one per line).")
         group.add_argument('-o', '--out', default=os.getcwd(), help="Where to download the CRLs. Defaults to the current directory.")
         group.add_argument('-f', '--format', dest='fmt', choices=['der', 'pem'], default='pem', help="The format to output. [%(default)s]")
         group.add_argument('-p', '--post-hook', help="Command to run if any CRLs were updated. This will be run in a shell.")
-        group.add_argument('urls', nargs='+', metavar='url', help="A CRL to download.")
+        group.add_argument('urls', nargs='*', metavar='url', help="A CRL to download.")
 
-    def handle(self, config, out, fmt, post_hook, urls, **options):
+    def handle(self, config, infile, out, fmt, post_hook, urls, **options):
         if not config.has_section(CONFIG_SECTION):
             config.add_section(CONFIG_SECTION)
+
+        if infile is not None:
+            with open(infile, 'rt') as f:
+                urls.extend(url.strip() for url in f)
 
         any_updated = False
         for url in urls:

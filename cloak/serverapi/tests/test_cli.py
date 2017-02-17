@@ -346,6 +346,24 @@ class CRLsTestCase(TestCase):
         self.assertTrue(os.path.exists(self.pem_path))
         self.assertTrue(os.path.exists(self.hook_path))
 
+    def test_fetch_from_file(self):
+        with tempfile.NamedTemporaryFile('wb') as f:
+            f.write(b'http://crl.getcloak.com/cloak-public-clients.crl\n')
+            f.write(b'http://crl.getcloak.com/cloak-public-servers.crl\n')
+            f.flush()
+
+            returncode = self.main([
+                'crls',
+                '--infile', f.name,
+                '--out', self.out_path,
+                '--format', 'pem',
+                '--post-hook', 'touch {}'.format(self.hook_path),
+            ])
+
+        self.assertEqual(returncode, 0)
+        self.assertTrue(os.path.exists(self.pem_path))
+        self.assertTrue(os.path.exists(self.hook_path))
+
     def test_crls_noop(self):
         self.main([
             'crls',
