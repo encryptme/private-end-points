@@ -97,26 +97,26 @@ class Server(ApiResult):
 
         return True
 
-    def get_pki(self, etag=None):
-        # type: (str) -> Union[object, PKI]
+    def get_pki(self, tag=None):
+        # type: (str) -> object
         """
         Retrieves the server's current PKI information.
 
-        The returned PKI object may have an etag value. If you pass that etag
-        subsequently and the server returns a 304, this returns NOT_MODIFIED.
+        The PKI object may have a 'tag' property. If so, you can pass this tag
+        on subsequent requests to see if anything has changed, like a
+        certificate renewal. If not, this will return PKI.NOT_MODIFIED.
 
         """
-        headers = {}
-        if etag is not None:
-            headers['If-None-Match'] = etag
+        params = {}
+        if tag is not None:
+            params['tag'] = tag
 
-        response = http.get('server/pki/', headers=headers, auth=self._api_auth)
+        response = http.get('server/pki/', params=params, auth=self._api_auth)
 
         if response.status_code == 304:
             pki = PKI.NOT_MODIFIED
         else:
             pki = PKI(response.json())
-            pki.etag = response.headers.get('ETag')
 
         return pki
 
@@ -149,9 +149,6 @@ class Server(ApiResult):
 
 class PKI(ApiResult):
     NOT_MODIFIED = object()
-
-    # Populated on instances.
-    etag = None  # type: str
 
     entity = SubResult('entity', ApiResult)
     intermediates = SubResult('intermediates', ApiResult, is_list=True)

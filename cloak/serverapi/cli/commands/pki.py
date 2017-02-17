@@ -1,5 +1,6 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+import os
 import os.path
 import subprocess
 import time
@@ -16,8 +17,8 @@ class Command(BaseCommand):
     description = "Downloads current certificates and other PKI information."
 
     def add_arguments(self, parser, group):
-        group.add_argument('-o', '--out', help="Where to download the certificates. Defaults to the current directory.")
-        group.add_argument('-f', '--force', action='store_true', help="Ignore any existing etag and always download the certificates.")
+        group.add_argument('-o', '--out', default=os.getcwd(), help="Where to download the certificates. Defaults to the current directory.")
+        group.add_argument('-f', '--force', action='store_true', help="Ignore any existing tag and always download the certificates.")
         group.add_argument('-w', '--wait', action='store_true', help="If a certificate request is pending, wait for it to be approved.")
         group.add_argument('-p', '--post-hook', help="Command to run if the certificates were updated. This will be run in a shell.")
 
@@ -30,21 +31,23 @@ class Command(BaseCommand):
             time.sleep(5)
             server = Server.retrieve(server_id, auth_token)
 
-        etag = self._get_etag(config) if (not force) else None
-        result = server.get_pki(etag)
+        tag = self._get_tag(config) if (not force) else None
+        result = server.get_pki(tag)
 
         if result is not PKI.NOT_MODIFIED:
             self._handle_pki(result, config, out, post_hook)
             print("Certificates saved to {}.".format(out), file=self.stdout)
+        else:
+            print("Not modified. Pass -f to download anyway.", file=self.stdout)
 
-    def _get_etag(self, config):
+    def _get_tag(self, config):
         # type: (ConfigParser) -> str
         try:
-            etag = config.get('serverapi', 'pki_etag')
+            tag = config.get('serverapi', 'pki_tag')
         except NoOptionError:
-            etag = None
+            tag = None
 
-        return etag
+        return tag
 
     def _handle_pki(self, pki, config, out, post_hook):
         # type: (PKI, ConfigParser, str, str) -> None
@@ -56,7 +59,7 @@ class Command(BaseCommand):
                 if returncode != 0:
                     raise CommandError("{} exited with status {}".format(post_hook, returncode))
 
-            config.set('serverapi', 'pki_etag', pki.etag)
+            config.set('serverapi', 'pki_tag', pki.tag)
 
     def _write_pki(self, pki, out):
         # type: (PKI, str) -> None

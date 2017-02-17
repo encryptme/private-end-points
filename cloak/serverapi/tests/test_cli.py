@@ -290,7 +290,7 @@ class PKITestCase(TestCase):
             ])
             os.unlink(self.server_cert_path)
 
-            # Should be a no-op because of the etag.
+            # Should be a no-op because of the tag.
             returncode = self.main([
                 'pki',
                 '--out', self.out_path,
@@ -319,7 +319,7 @@ class PKITestCase(TestCase):
             ])
             os.unlink(self.server_cert_path)
 
-            # Should be a no-op because of the etag.
+            # Should be a no-op because of the tag.
             returncode = self.main([
                 'pki',
                 '--out', self.out_path,

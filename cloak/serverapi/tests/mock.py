@@ -11,7 +11,7 @@ import string
 
 import requests
 from six.moves import xrange
-from six.moves.urllib.parse import parse_qs, urljoin
+from six.moves.urllib.parse import parse_qs, urljoin, urlparse
 from typing import Any, Dict  # noqa
 
 from cloak.serverapi.utils import http
@@ -41,7 +41,7 @@ class MockSession(object):
         self.target_id = None    # type: str
 
         self.csr = None          # type: str
-        self.pki_etag = None     # type: str
+        self.pki_tag = None      # type: str
 
     def get(self, url, **kwargs):
         # type: (str, **Any) -> requests.Response
@@ -89,15 +89,22 @@ class MockSession(object):
 
     def _get_server_pki(self, request):
         # type: (requests.PreparedRequest) -> requests.Response
+        query = parse_qs(force_text(urlparse(request.url).query))
+
+        try:
+            tag = query['tag'][0]
+        except LookupError:
+            tag = None
+
         if self._authenticate(request):
-            if request.headers.get('If-None-Match', '') == self.pki_etag:
-                response = self._response(request, 304)
-            elif self.csr is None:
+            if self.csr is None:
                 result = {
                     'entity': None, 'intermediates': [], 'extras': [],
-                    'anchors': [], 'crls': [],
+                    'anchors': [], 'crls': [], 'tag': None,
                 }  # type: Dict[str, Any]
                 response = self._response(request, 200, result)
+            elif (tag is not None) and (tag == self.pki_tag):
+                response = self._response(request, 304)
             else:
                 result = {
                     'entity': self._cert_result('entity'),
@@ -114,9 +121,9 @@ class MockSession(object):
                     'crls': [
                         'http://crl.example.com/server.crl'
                     ],
+                    'tag': self.pki_tag,
                 }
-                headers = {'ETag': self.pki_etag}
-                response = self._response(request, 200, result, headers=headers)
+                response = self._response(request, 200, result)
         else:
             response = self._response(request, 401)
 
@@ -150,7 +157,7 @@ class MockSession(object):
 
         if self._authenticate(request):
             self.csr = data['csr'][0]
-            self.pki_etag = ''.join(random.choice(mixed_alphabet) for i in xrange(16))
+            self.pki_tag = ''.join(random.choice(mixed_alphabet) for i in xrange(16))
             response = self._response(request, 202)
         else:
             response = self._response(request, 401)
