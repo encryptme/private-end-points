@@ -35,8 +35,7 @@ class SubResult(object):
                 if value is not None:
                     value = self.constructor(value)
 
-            instance[self.key] = value
-            delattr(instance, self.key)
+            setattr(instance, self.key, value)
         else:
             value = self
 
