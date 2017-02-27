@@ -76,6 +76,9 @@ class Command(BaseCommand):
             for cert in pki.anchors:
                 f.write(cert.pem)
 
+        with open(os.path.join(out, 'client_ca.pem'), 'w') as f:
+            f.write(pki.client_ca.pem)
+
         with open(os.path.join(out, 'crl_urls.txt'), 'w') as f:
             for crl in pki.crls:
                 print(crl, file=f)

@@ -154,3 +154,4 @@ class PKI(ApiResult):
     intermediates = SubResult('intermediates', ApiResult, is_list=True)
     extras = SubResult('extras', ApiResult, is_list=True)
     anchors = SubResult('anchors', ApiResult, is_list=True)
+    client_ca = SubResult('client_ca', ApiResult)

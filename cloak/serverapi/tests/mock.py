@@ -118,6 +118,7 @@ class MockSession(object):
                     'anchors': [
                         self._cert_result('anchor1'),
                     ],
+                    'client_ca': self._cert_result('client_ca'),
                     'crls': [
                         'http://crl.example.com/server.crl'
                     ],
