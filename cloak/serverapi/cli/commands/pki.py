@@ -6,6 +6,7 @@ import subprocess
 import time
 
 from six.moves.configparser import ConfigParser, NoOptionError  # noqa
+from typing import cast
 
 from cloak.serverapi.server import Server, PKI
 
@@ -35,8 +36,13 @@ class Command(BaseCommand):
         result = server.get_pki(tag)
 
         if result is not PKI.NOT_MODIFIED:
-            self._handle_pki(result, config, out, post_hook)
-            print("Certificates saved to {}.".format(out), file=self.stdout)
+            pki = cast(PKI, result)
+
+            if pki.entity is not None:
+                self._handle_pki(result, config, out, post_hook)
+                print("Certificates saved to {}.".format(out), file=self.stdout)
+            else:
+                print("No certificate available. Request one with req.", file=self.stdout)
         else:
             print("Not modified. Pass -f to download anyway.", file=self.stdout)
 
@@ -51,33 +57,26 @@ class Command(BaseCommand):
 
     def _handle_pki(self, pki, config, out, post_hook):
         # type: (PKI, ConfigParser, str, str) -> None
-        if pki.entity is not None:
-            self._write_pki(pki, out)
+        self._write_pki(pki, out)
 
-            if post_hook is not None:
-                returncode = subprocess.call(post_hook, shell=True)
-                if returncode != 0:
-                    raise CommandError("{} exited with status {}".format(post_hook, returncode))
+        if post_hook is not None:
+            returncode = subprocess.call(post_hook, shell=True)
+            if returncode != 0:
+                raise CommandError("{} exited with status {}".format(post_hook, returncode))
 
-            config.set('serverapi', 'pki_tag', pki.tag)
+        config.set('serverapi', 'pki_tag', pki.tag)
 
     def _write_pki(self, pki, out):
         # type: (PKI, str) -> None
-        with open(os.path.join(out, 'server.pem'), 'w') as f:
-            f.write(pki.entity.pem)
-            for cert in pki.intermediates:
-                f.write(cert.pem)
-
-        with open(os.path.join(out, 'extras.pem'), 'w') as f:
-            for cert in pki.extras:
-                f.write(cert.pem)
-
-        with open(os.path.join(out, 'anchors.pem'), 'w') as f:
-            for cert in pki.anchors:
-                f.write(cert.pem)
+        with open(os.path.join(out, 'anchor.pem'), 'w') as f:
+            f.write(pki.anchor.pem)
 
         with open(os.path.join(out, 'client_ca.pem'), 'w') as f:
             f.write(pki.client_ca.pem)
+
+        with open(os.path.join(out, 'server.pem'), 'w') as f:
+            f.write(pki.entity.pem)
+            f.write(pki.server_ca.pem)
 
         with open(os.path.join(out, 'crl_urls.txt'), 'w') as f:
             for crl in pki.crls:

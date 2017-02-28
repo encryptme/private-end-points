@@ -97,31 +97,23 @@ class MockSession(object):
             tag = None
 
         if self._authenticate(request):
+            result = None  # type: Dict[str, Any]
+
             if self.csr is None:
                 result = {
-                    'entity': None, 'intermediates': [], 'extras': [],
-                    'anchors': [], 'crls': [], 'tag': None,
-                }  # type: Dict[str, Any]
+                    'anchor': None, 'server_ca': None, 'client_ca': None,
+                    'entity': None, 'crls': [], 'tag': None,
+                }
                 response = self._response(request, 200, result)
             elif (tag is not None) and (tag == self.pki_tag):
                 response = self._response(request, 304)
             else:
                 result = {
-                    'entity': self._cert_result('entity'),
-                    'intermediates': [
-                        self._cert_result('intermediate1'),
-                        self._cert_result('intermediate2'),
-                    ],
-                    'extras': [
-                        self._cert_result('extra1'),
-                    ],
-                    'anchors': [
-                        self._cert_result('anchor1'),
-                    ],
+                    'anchor': self._cert_result('anchor'),
+                    'server_ca': self._cert_result('server_ca'),
                     'client_ca': self._cert_result('client_ca'),
-                    'crls': [
-                        'http://crl.example.com/server.crl'
-                    ],
+                    'entity': self._cert_result('entity'),
+                    'crls': ['http://crl.example.com/server.crl'],
                     'tag': self.pki_tag,
                 }
                 response = self._response(request, 200, result)

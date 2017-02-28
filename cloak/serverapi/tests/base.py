@@ -12,7 +12,7 @@ if six.PY3:
 else:
     import mock
 
-from cloak.serverapi.cli.main import main
+from cloak.serverapi.cli.main import main, get_config
 from cloak.serverapi.tests.mock import MockSession
 
 
@@ -47,3 +47,6 @@ class TestCase(unittest.TestCase):
 
     def main(self, argv):
         return main(argv, self.stdout, self.stderr)
+
+    def get_config(self):
+        return get_config()

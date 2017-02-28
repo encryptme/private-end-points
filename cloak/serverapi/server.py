@@ -13,7 +13,7 @@ from cloak.serverapi.utils.apiresult import ApiResult
 
 
 # The default API version for registering new servers.
-default_api_version = '2017-01-01'
+default_api_version = '2017-02_28'
 
 
 class Server(ApiResult):

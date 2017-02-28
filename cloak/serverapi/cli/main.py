@@ -113,11 +113,14 @@ def default_config_path():
     return path
 
 
-def get_config(path):
+def get_config(path=None):
     # type: (str) -> RawConfigParser
     """
     Returns a ConfigParser with our current configuration.
     """
+    if path is None:
+        path = default_config_path()
+
     defaults = {
         'base_url': 'https://www.getcloak.com/',
     }
