@@ -66,6 +66,8 @@ class MockSession(object):
         path = self._url_path(url)
         if path == 'servers/':
             response = self._post_servers(prepped)
+        elif path == 'server/':
+            response = self._post_server(prepped)
         elif path == 'server/csr/':
             response = self._post_server_csr(prepped)
         else:
@@ -143,6 +145,17 @@ class MockSession(object):
         }
 
         return self._response(request, 201, result)
+
+    def _post_server(self, request):
+        # type: (requests.PreparedRequest) -> requests.Response
+        data = parse_qs(force_text(request.body))
+
+        if 'name' in data:
+            self.name = data['name'][0]
+        if 'api_version' in data:
+            self.api_version = data['api_version'][0]
+
+        return self._response(request, 200, self._server_result())
 
     def _post_server_csr(self, request):
         # type: (requests.PreparedRequest) -> requests.Response

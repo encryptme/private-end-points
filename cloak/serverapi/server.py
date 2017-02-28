@@ -13,7 +13,7 @@ from cloak.serverapi.utils.apiresult import ApiResult
 
 
 # The default API version for registering new servers.
-default_api_version = '2017-02_28'
+default_api_version = '2017-02-28'
 
 
 class Server(ApiResult):
@@ -69,6 +69,28 @@ class Server(ApiResult):
     #
     # Operations
     #
+
+    UPDATABLE = ['name', 'api_version']
+
+    def update_server(self, **kwargs):
+        # type: (**str) -> None
+        """
+        Updates simple server properties.
+
+        Valid keyword args: name, api_version.
+
+        """
+        updates = {
+            k: v for k, v in kwargs.items()
+            if (k in self.UPDATABLE) and bool(v)
+        }
+
+        if len(updates) > 0:
+            result = http.post('server/', data=updates, auth=self._api_auth).json()
+
+            # We're a dict, so just replace the contents.
+            self.clear()
+            self.update(result)
 
     def request_certificate(self, key_pem):
         # type: (str) -> bool

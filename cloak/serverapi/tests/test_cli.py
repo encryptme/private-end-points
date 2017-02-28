@@ -112,6 +112,39 @@ class InfoTestCase(TestCase):
         json.loads(self.stdout.getvalue())
 
 
+class UpdateTestCase(TestCase):
+    def test_update_noop(self):
+        self.main([
+            'register',
+            '-e', 'alice@example.com',
+            '-p', 'password',
+            '-t', 'tgt_z24y7miezisykwi6',
+            '-n', 'server1.example.com',
+        ])
+        returncode = self.main(['update'])
+
+        self.assertEqual(returncode, 0)
+
+    def test_update(self):
+        self.main([
+            'register',
+            '-e', 'alice@example.com',
+            '-p', 'password',
+            '-t', 'tgt_z24y7miezisykwi6',
+            '-n', 'server1.example.com',
+        ])
+        returncode = self.main([
+            'update',
+            '-n', 'server2.example.com',
+            '-a', '2050-01-01',
+            '-j',
+        ])
+
+        self.assertEqual(returncode, 0)
+        self.assertIn('server2.example.com', self.stdout.getvalue())
+        self.assertIn('2050-01-01', self.stdout.getvalue())
+
+
 class CSRTestCase(TestCase):
     def test_existing_key(self):
         with tempfile.NamedTemporaryFile('wb', 0) as key_file:

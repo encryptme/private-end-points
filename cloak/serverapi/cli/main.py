@@ -24,6 +24,7 @@ COMMANDS = [
     'pki',
     'register',
     'req',
+    'update',
 ]
 
 

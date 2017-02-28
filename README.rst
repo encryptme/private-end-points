@@ -9,6 +9,8 @@ as private Cloak servers.
 
 The ``cloak-server-demo`` project ties everything together into a complete
 working example, but here we describe the general use of this client.
+``cloak-server -h`` and ``cloak-server <cmd> -h`` will give you more detailed
+information about arguments.
 
 
 Setup
@@ -29,7 +31,12 @@ override the path to the config file.
 Quick start
 -----------
 
-The ``cloak-server`` tool can be installed from <a location to be decided>.
+The ``cloak-server`` tool is a Python package that can be installed from
+https://packagecloud.io/cloak/public/pypi/simple. For example, you might add a
+pip.conf file to the root of a virtualenv with the following contents:
+
+    [global]
+    extra-index-url=https://packagecloud.io/cloak/public/pypi/simple
 
 
 Register
@@ -44,6 +51,17 @@ All parameters can be passed to the registration command, or you can let it
 prompt you.
 
     cloak-server register
+
+You can view the registration with
+
+    cloak-server info [--json]
+
+Pass --json to see the whole server structure returned by the API; otherwise, a
+subset will be printed in human-readable form.
+
+Selected properties can be updated:
+
+    cloak-server update --name new-name.example.com
 
 
 Certificates
@@ -66,22 +84,23 @@ along with all associated PKI information:
 
 This will create several files:
 
+    anchor.pem
+      The anchor certificate for the private PKI.
+
     server.pem
       The server certificate followed by intermediates.
 
-    anchors.pem
-      The anchor certificate(s) for the private PKI.
-
-    extras.pem
-      Any additional certificates of interest, for example CRL signers.
+    client_ca.pem
+      The intermediate that directly signs client certificates.
 
     crl_urls.txt
       A text file with URLs to any certificate revocation lists (CRLs) that we
       need to know about, one per line.
 
-The response to the PKI request includes an ETag, which we can use to detect
-changes. This ETag is saved to our config file and sent in subsequent requests
-by default. To check for PKI changes, you can periodically run:
+The response to the PKI request includes a value that we can use to detect
+changes, similar to an ETag. This tag is saved to our config file and sent in
+subsequent requests by default. To check for PKI changes, you can periodically
+run:
 
     cloak-server pki --out /path/to/pki/ --post-hook cloak-pki-updated.sh
 
@@ -89,7 +108,7 @@ If the post-hook is executed, it most likely means that the server certificate
 has been renewed. The post-hook should restart or reload services for the
 updated certificates.
 
-The ``pki`` command also takes a ``-f`` argument to ignore the etag and download
+The ``pki`` command also takes a ``-f`` argument to ignore the tag and download
 a fresh copy of everything.
 
 
@@ -103,7 +122,7 @@ certificates:
 
     cloak-server crls --infile /path/to/crl_urls.txt --out /path/to/crls/ --post-hook cloak-crls-updated.sh
 
-This command uses the config file to store an etag for each URL, so you can run
+This command uses the config file to store an ETag for each URL, so you can run
 it frequently.
 
 
@@ -111,7 +130,8 @@ Development
 -----------
 
 To set up a development environment for this project, just create a virtualenv
-with any supported version of Python and run ``pip install -e .``.
+with any supported version of Python, cd to the root of the project, and run
+``pip install -e .``.
 
 Run tests in a single virtualenv with ``python setup.py test``. To test in all
 supported environments, install and run ``tox``. This will also run a suite of
