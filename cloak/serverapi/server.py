@@ -9,7 +9,7 @@ import six
 from typing import Tuple, Any, Union  # noqa
 
 from cloak.serverapi.utils import http
-from cloak.serverapi.utils.apiresult import ApiResult, SubResult
+from cloak.serverapi.utils.apiresult import ApiResult
 
 
 # The default API version for registering new servers.
@@ -121,16 +121,6 @@ class Server(ApiResult):
         return pki
 
     #
-    # Sub-structure
-    #
-
-    class Target(ApiResult):
-        openvpn = SubResult('openvpn', ApiResult, is_list=True)
-        ikev2 = SubResult('ikev2', ApiResult, is_list=True)
-
-    target = SubResult('target', Target)
-
-    #
     # Private
     #
 
@@ -149,9 +139,3 @@ class Server(ApiResult):
 
 class PKI(ApiResult):
     NOT_MODIFIED = object()
-
-    entity = SubResult('entity', ApiResult)
-    intermediates = SubResult('intermediates', ApiResult, is_list=True)
-    extras = SubResult('extras', ApiResult, is_list=True)
-    anchors = SubResult('anchors', ApiResult, is_list=True)
-    client_ca = SubResult('client_ca', ApiResult)

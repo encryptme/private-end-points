@@ -11,10 +11,11 @@ import six
 from six.moves.configparser import RawConfigParser
 from typing import IO  # noqa
 
-import cloak.serverapi.utils.http
 from cloak.serverapi.cli.commands._base import BaseCommand, CommandError  # noqa
 from cloak.serverapi.errors import ServerApiError
+from cloak.serverapi.server import default_api_version
 from cloak.serverapi.utils.encoding import force_text
+import cloak.serverapi.utils.http
 
 
 COMMANDS = [
@@ -33,7 +34,12 @@ def main(argv=None, stdout=sys.stdout, stderr=sys.stderr):
     try:
         args = parse_args(argv, stdout, stderr)
         config = get_config(args.config_path)
+
+        # Changing the base_url is really just for internal use.
         cloak.serverapi.utils.http.base_url = config.get('serverapi', 'base_url')
+
+        # The CLI layer always wants the API version that it was built for.
+        cloak.serverapi.utils.http.default_api_version = default_api_version
 
         # In quiet mode, we just swallow stdout.
         if args.quiet:

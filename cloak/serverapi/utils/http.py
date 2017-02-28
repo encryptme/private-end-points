@@ -20,6 +20,10 @@ session = requests.Session()
 # This can be overridden for test environments.
 base_url = 'https://www.getcloak.com/'
 
+# Set this to send the X-Cloak-API-Version with every request. This can still
+# be overridden for individual requests.
+default_api_version = None  # type: str
+
 
 def get(path, api_version=None, **kwargs):
     # type: (str, str, **Any) -> requests.Response
@@ -39,6 +43,8 @@ def _call(method, path, api_version=None, **kwargs):
     headers = kwargs.setdefault('headers', {})
     if api_version is not None:
         headers['X-Cloak-API-Version'] = api_version
+    elif default_api_version is not None:
+        headers['X-Cloak-API-Version'] = default_api_version
 
     if method == 'GET':
         response = session.get(url, **kwargs)

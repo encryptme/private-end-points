@@ -10,33 +10,16 @@ class ApiResult(dict):
             value = self[key]
         except KeyError:
             raise AttributeError(key)
+        else:
+            value = self._upgrade(value)
 
         return value
 
-
-class SubResult(object):
-    """
-    Property accessor for sub-structures in a result.
-    """
-    def __init__(self, key, constructor, is_list=False):
-        self.key = key
-        self.constructor = constructor
-        self.is_list = is_list
-
-    def __get__(self, instance, owner):
-        if instance is not None:
-            if self.is_list:
-                value = [
-                    self.constructor(result) if (result is not None) else result
-                    for result in instance[self.key]
-                ]
-            else:
-                value = instance[self.key]
-                if value is not None:
-                    value = self.constructor(value)
-
-            setattr(instance, self.key, value)
-        else:
-            value = self
+    @staticmethod
+    def _upgrade(value):
+        if isinstance(value, dict):
+            value = ApiResult(value)
+        elif isinstance(value, list):
+            value = [ApiResult._upgrade(item) for item in value]
 
         return value
