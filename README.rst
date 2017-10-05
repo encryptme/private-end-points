@@ -1,13 +1,13 @@
-cloak-server
-============
+Private-end Points
+==================
 
-A tool for registering private Cloak VPN endpoints.
+A tool for registering private Encrypt.me VPN endpoints.
 
-This is an official client of the Cloak for Teams server API. It's used to
-register your own servers with your team account so that you can provision them
-as private Cloak servers.
+This is an official client of the Encrypt.me private end-points server API.
+It's used to register your own servers with your team account so that you can
+provision them as private Encrypt.me servers.
 
-The ``cloak-server-demo`` project ties everything together into a complete
+The ``private-end-point-ansible`` project ties everything together into a complete
 working example, but here we describe the general use of this client.
 ``cloak-server -h`` and ``cloak-server <cmd> -h`` will give you more detailed
 information about arguments.
@@ -43,7 +43,7 @@ Register
 ~~~~~~~~
 
 The first step is to register your server with your team. To do this, you will
-need your Cloak account email and password. Because teams can have multiple
+need your Encrypt.me account email and password. Because teams can have multiple
 targets (representing subsets of your servers), you'll also need a target
 identifier from your team dashboard.
 
