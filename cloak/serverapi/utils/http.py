@@ -18,7 +18,7 @@ session = requests.Session()
 
 
 # This can be overridden for test environments.
-base_url = 'https://www.getcloak.com/'
+base_url = 'https://app.encrypt.me/'
 
 # Set this to send the X-Cloak-API-Version with every request. This can still
 # be overridden for individual requests.

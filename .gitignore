@@ -2,3 +2,7 @@
 /.tox
 /build
 /dist
+*.egg-info
+
+*.pyc
+.*.sw?
