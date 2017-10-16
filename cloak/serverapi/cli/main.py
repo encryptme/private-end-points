@@ -115,9 +115,9 @@ def default_config_path():
     path = os.getenv('CLOAK_CONFIG', None)
     if path is None:
         if os.geteuid() == 0:
-            path = '/etc/cloak.conf'
+            path = '/etc/encryptme/encryptme.conf'
         else:
-            path = os.path.expanduser('~/.cloak.conf')
+            path = os.path.expanduser('~/.encryptme.conf')
 
     return path
 

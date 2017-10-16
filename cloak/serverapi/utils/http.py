@@ -6,6 +6,8 @@ Most clients will want to include the 'auth' keyword argument with credentials.
 """
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+import os
+
 import requests
 from six.moves import xrange
 from six.moves.urllib.parse import urljoin
@@ -23,6 +25,8 @@ base_url = 'https://app.encrypt.me/'
 # Set this to send the X-Cloak-API-Version with every request. This can still
 # be overridden for individual requests.
 default_api_version = None  # type: str
+
+container_version = os.environ.get('CONTAINER_VERSION')
 
 
 def get(path, api_version=None, **kwargs):
@@ -45,6 +49,8 @@ def _call(method, path, api_version=None, **kwargs):
         headers['X-Cloak-API-Version'] = api_version
     elif default_api_version is not None:
         headers['X-Cloak-API-Version'] = default_api_version
+    if container_version:
+        headers['X-Cloak-Container-Version'] = container_version
 
     if method == 'GET':
         response = session.get(url, **kwargs)
