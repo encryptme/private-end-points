@@ -26,13 +26,12 @@ class Server(ApiResult):
     #
 
     @classmethod
-    def register(cls, email, password, target_id, name=None, api_version=default_api_version):
+    def register(cls, reg_key, name=None, api_version=default_api_version):
         # type: (str, str, str, str, str) -> Server
         """
         Registers a new server to a team.
 
-        email, password: Cloak credentials.
-        target_id: Identifies the target to link the server to.
+        reg_key: Registration key from Encrypt.me
         name: Name of the server. Defaults to the host fqdn.
         api_version: Optional API version. Defaults to the latest version known to
             this package.
@@ -42,9 +41,7 @@ class Server(ApiResult):
             name = socket.getfqdn()
 
         data = {
-            'email': email,
-            'password': password,
-            'target': target_id,
+            'auth_token': reg_key,
             'name': name,
         }
 
