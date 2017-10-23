@@ -32,10 +32,10 @@ class Command(BaseCommand):
         else:
             raise CommandError("This server is already registered. If you've unregistered it from your team dashboard, you can delete {}".format(options['config_path']))
 
-        if reg_key is None:
-            reg_key = input("Enter your Encrypt.me private end-point slot authorization key: ")
+        if key is None:
+            key = input("Enter your Encrypt.me private end-point slot authorization key: ")
 
-        server = Server.register(reg_key, name)
+        server = Server.register(key, name)
 
         config.set('serverapi', 'server_id', server.server_id)
         config.set('serverapi', 'auth_token', server.auth_token)
