@@ -26,7 +26,7 @@ class Command(BaseCommand):
         success = server.request_certificate(key_pem)
 
         if success:
-            print("A new certificate has been requested. This request must be approved on your team dashboard.", file=self.stdout)
+            print("A new certificate has been requested. If you have not enabled automatic PKI approval this request must be approved on your team dashboard.", file=self.stdout)
         else:
             raise CommandError("An unknown error occurred while trying to request a certificate.")
 
