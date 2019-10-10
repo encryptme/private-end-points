@@ -25,7 +25,7 @@ setup(
     install_requires=[
         'asn1crypto>=0.21.0,<1.0.0',
         'csrbuilder>=0.10.1',
-        'oscrypto>=0.18.0',
+        'oscrypto>=0.18.0,<1.0.0',
         'requests>=2.5.1',
         'six>=1.10.0',
         'typing',
