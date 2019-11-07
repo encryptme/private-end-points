@@ -17,15 +17,15 @@ Setup
 -----
 
 This tool maintains a configuration file with credentials and a few other bits
-of state. If you run this tool as root, the default location is /etc/cloak.conf.
-Otherwise, it will be in ~/.cloak.conf. All commands accept an argument to
+of state. If you run this tool as root, the default location is ``/etc/cloak.conf``.
+Otherwise, it will be in ``~/.cloak.conf``. All commands accept an argument to
 override the path to the config file.
 
 .. warning::
 
     This config file will be both read and written to, so it's important to make
     sure the tool always has access to it. Most likely this means always running
-    it under the same effective uid.
+    it under the same effective ``uid``.
 
 
 Quick start
@@ -33,7 +33,7 @@ Quick start
 
 The ``cloak-server`` tool is a Python package that can be installed from
 https://packagecloud.io/cloak/public/pypi/simple. For example, you might add a
-pip.conf file to the root of a virtualenv with the following contents:
+``pip.conf`` file to the root of a virtualenv with the following contents:
 
     [global]
     extra-index-url=https://packagecloud.io/cloak/public/pypi/simple
@@ -56,7 +56,7 @@ You can view the registration with
 
     cloak-server info [--json]
 
-Pass --json to see the whole server structure returned by the API; otherwise, a
+Pass ``--json`` to see the whole server structure returned by the API; otherwise, a
 subset will be printed in human-readable form.
 
 Selected properties can be updated:
