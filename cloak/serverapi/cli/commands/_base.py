@@ -102,6 +102,11 @@ class BaseCommand(object):
                 ikev2.fqdn, ikev2.server_id, ikev2.client_ca_dn
             ), file=self.stdout)
 
+        for wireguard in target.wireguard:
+            print("Wireguard: {}  public_key: {}".format(
+                wireguard.fqdn, wireguard.public_key
+            ), file=self.stdout)
+
     #
     # Internal
     #
