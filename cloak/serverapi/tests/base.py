@@ -1,5 +1,3 @@
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 from functools import partial
 import io
 import os
@@ -7,25 +5,24 @@ from tempfile import NamedTemporaryFile
 import unittest
 
 import six
-if six.PY3:
-    from unittest import mock
-else:
-    import mock
+from unittest import mock
 
 from cloak.serverapi.cli.main import main, get_config
 from cloak.serverapi.tests.mock import MockSession
 
 
 class TestCase(unittest.TestCase):
+    def_target_id = 'tgt_z24y7miezisykwi6'
+
     def setUp(self):
-        super(TestCase, self).setUp()
+        super().setUp()
 
         # Capture stdio.
         self.stdout = io.StringIO()
         self.stderr = io.StringIO()
 
         # Tests can check on our current state here.
-        self.session = MockSession()
+        self.session = MockSession(def_target_id=self.def_target_id)
 
         # Intercept HTTP calls to the API.
         patcher = mock.patch('cloak.serverapi.utils.http.session', self.session)

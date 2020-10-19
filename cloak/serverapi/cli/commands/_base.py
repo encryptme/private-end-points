@@ -1,5 +1,3 @@
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import argparse  # noqa
 import sys
 
@@ -9,7 +7,7 @@ from typing import Any, Tuple, IO  # noqa
 from cloak.serverapi.server import Server  # noqa
 
 
-class BaseCommand(object):
+class BaseCommand:
     """
     Base class for cloak-server CLI commands.
 

@@ -1,16 +1,14 @@
 Private-end Points
 ==================
 
-A tool for registering private Encrypt.me VPN endpoints.
+A tool for registering private Encrypt.me VPN endpoints. Requires Python 3.
 
 This is an official client of the Encrypt.me private end-points server API.
 It's used to register your own servers with your team account so that you can
 provision them as private Encrypt.me servers.
 
-The ``private-end-point-ansible`` project ties everything together into a complete
-working example, but here we describe the general use of this client.
-``cloak-server -h`` and ``cloak-server <cmd> -h`` will give you more detailed
-information about arguments.
+This tool is embedded within our official Docker-based image to run your own
+VPN end-points, but using the instructions below can be used manually.
 
 
 Setup
@@ -26,17 +24,6 @@ override the path to the config file.
     This config file will be both read and written to, so it's important to make
     sure the tool always has access to it. Most likely this means always running
     it under the same effective ``uid``.
-
-
-Quick start
------------
-
-The ``cloak-server`` tool is a Python package that can be installed from
-https://packagecloud.io/cloak/public/pypi/simple. For example, you might add a
-``pip.conf`` file to the root of a virtualenv with the following contents:
-
-    [global]
-    extra-index-url=https://packagecloud.io/cloak/public/pypi/simple
 
 
 Register

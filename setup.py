@@ -7,20 +7,17 @@ import sys
 from setuptools import setup, find_packages
 
 
-if sys.version_info[0] == 2:
-    tests_require = ['mock']
-else:
-    tests_require = []
+tests_require = []
 
 
 setup(
     name='cloak-server',
-    version='0.1.8',
-    author='Cloak',
-    author_email='hello@getcloak.com',
-    description="Tool for configuring private Cloak endpoints.",
+    version='0.2',
+    author='Encrypt.me',
+    author_email='hello@encrypt.me',
+    description="Tool for configuring private Encrypt.me endpoints.",
     license='BSD',
-    url='https://github.com/bbits/cloak-server',
+    url='https://github.com/encryptme/private-end-points',
 
     install_requires=[
         'asn1crypto>=0.21.0,<1.0.0',

@@ -1,6 +1,3 @@
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-
 class ApiResult(dict):
     """
     Attribute access for keys in an API result structure.

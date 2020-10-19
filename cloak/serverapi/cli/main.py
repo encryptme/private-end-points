@@ -1,5 +1,3 @@
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import argparse
 from importlib import import_module
 import io
@@ -103,6 +101,10 @@ def parse_args(argv, stdout, stderr):
         sub.set_defaults(cmd=cmd)
 
     args = parser.parse_args(argv)
+    if not hasattr(args, 'cmd'):
+        parser.print_help();
+        sys.exit(1)
+
 
     return args
 

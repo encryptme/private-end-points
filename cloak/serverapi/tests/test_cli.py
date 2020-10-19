@@ -1,5 +1,3 @@
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 from functools import partial
 import json
 import os.path
@@ -13,38 +11,34 @@ from cloak.serverapi.tests.base import TestCase
 
 class RegisterTestCase(TestCase):
     def test_register(self):
+        self.assertIsNone(self.session.target_id)
+
         returncode = self.main([
             'register',
-            '-e', 'alice@example.com',
-            '-p', 'password',
-            '-t', 'tgt_z24y7miezisykwi6',
+            '-k', 'secret_onetime_reg_key',
             '-n', 'srv1.team.example.com',
         ])
 
         self.assertEqual(returncode, 0)
-        self.assertEqual(self.session.target_id, 'tgt_z24y7miezisykwi6')
+        self.assertEqual(self.session.target_id, self.def_target_id)
         self.assertNotEqual(self.stdout.getvalue(), '')
 
     def test_register_quiet(self):
         returncode = self.main([
             '--quiet',
             'register',
-            '-e', 'alice@example.com',
-            '-p', 'password',
-            '-t', 'tgt_z24y7miezisykwi6',
+            '-k', 'secret_onetime_reg_key',
             '-n', 'srv1.team.example.com',
         ])
 
         self.assertEqual(returncode, 0)
-        self.assertEqual(self.session.target_id, 'tgt_z24y7miezisykwi6')
+        self.assertEqual(self.session.target_id, self.def_target_id)
         self.assertEqual(self.stdout.getvalue(), '')
 
     def test_register_auto_name(self):
         returncode = self.main([
             'register',
-            '-e', 'alice@example.com',
-            '-p', 'password',
-            '-t', 'tgt_z24y7miezisykwi6',
+            '-k', 'secret_onetime_reg_key',
         ])
 
         self.assertEqual(returncode, 0)
@@ -53,15 +47,11 @@ class RegisterTestCase(TestCase):
     def test_already_registered(self):
         self.main([
             'register',
-            '-e', 'alice@example.com',
-            '-p', 'password',
-            '-t', 'tgt_z24y7miezisykwi6',
+            '-k', 'secret_onetime_reg_key',
         ])
         returncode = self.main([
             'register',
-            '-e', 'alice@example.com',
-            '-p', 'password',
-            '-t', 'tgt_z24y7miezisykwi6',
+            '-k', 'secret_onetime_reg_key',
         ])
 
         self.assertNotEqual(returncode, 0)
@@ -76,9 +66,7 @@ class InfoTestCase(TestCase):
     def test_auth_fail(self):
         self.main([
             'register',
-            '-e', 'alice@example.com',
-            '-p', 'password',
-            '-t', 'tgt_z24y7miezisykwi6',
+            '-k', 'secret_onetime_reg_key',
         ])
         self.session.auth_token = 'bogus'
         returncode = self.main(['info'])
@@ -88,9 +76,7 @@ class InfoTestCase(TestCase):
     def test_print_info(self):
         self.main([
             'register',
-            '-e', 'alice@example.com',
-            '-p', 'password',
-            '-t', 'tgt_z24y7miezisykwi6',
+            '-k', 'secret_onetime_reg_key',
         ])
         returncode = self.main(['info'])
 
@@ -100,9 +86,7 @@ class InfoTestCase(TestCase):
     def test_print_json(self):
         self.main([
             'register',
-            '-e', 'alice@example.com',
-            '-p', 'password',
-            '-t', 'tgt_z24y7miezisykwi6',
+            '-k', 'secret_onetime_reg_key',
         ])
         self.stdout.seek(0)
         self.stdout.truncate()
@@ -116,9 +100,7 @@ class UpdateTestCase(TestCase):
     def test_update_noop(self):
         self.main([
             'register',
-            '-e', 'alice@example.com',
-            '-p', 'password',
-            '-t', 'tgt_z24y7miezisykwi6',
+            '-k', 'secret_onetime_reg_key',
             '-n', 'server1.example.com',
         ])
         returncode = self.main(['update'])
@@ -128,9 +110,7 @@ class UpdateTestCase(TestCase):
     def test_update(self):
         self.main([
             'register',
-            '-e', 'alice@example.com',
-            '-p', 'password',
-            '-t', 'tgt_z24y7miezisykwi6',
+            '-k', 'secret_onetime_reg_key',
             '-n', 'server1.example.com',
         ])
         returncode = self.main([
@@ -152,9 +132,7 @@ class CSRTestCase(TestCase):
 
             self.main([
                 'register',
-                '-e', 'alice@example.com',
-                '-p', 'password',
-                '-t', 'tgt_z24y7miezisykwi6',
+                '-k', 'secret_onetime_reg_key',
             ])
             returncode = self.main([
                 'req', '-k', key_file.name,
@@ -170,9 +148,7 @@ class CSRTestCase(TestCase):
 
         self.main([
             'register',
-            '-e', 'alice@example.com',
-            '-p', 'password',
-            '-t', 'tgt_z24y7miezisykwi6',
+            '-k', 'secret_onetime_reg_key',
         ])
         returncode = self.main([
             'req', '-k', key_path
@@ -187,9 +163,7 @@ class CSRTestCase(TestCase):
 
             self.main([
                 'register',
-                '-e', 'alice@example.com',
-                '-p', 'password',
-                '-t', 'tgt_z24y7miezisykwi6',
+                '-k', 'secret_onetime_reg_key',
             ])
             returncode = self.main([
                 'req', '-k', key_file.name,
@@ -206,9 +180,7 @@ class CSRTestCase(TestCase):
 
         self.main([
             'register',
-            '-e', 'alice@example.com',
-            '-p', 'password',
-            '-t', 'tgt_z24y7miezisykwi6',
+            '-k', 'secret_onetime_reg_key',
         ])
         returncode = self.main([
             'req', '-k', key_path
@@ -223,7 +195,7 @@ class CSRTestCase(TestCase):
 
 class PKITestCase(TestCase):
     def setUp(self):
-        super(PKITestCase, self).setUp()
+        super().setUp()
 
         self.out_path = tempfile.mkdtemp()
         self.server_cert_path = os.path.join(self.out_path, 'server.pem')
@@ -233,9 +205,7 @@ class PKITestCase(TestCase):
     def test_get_empty_pki(self):
         self.main([
             'register',
-            '-e', 'alice@example.com',
-            '-p', 'password',
-            '-t', 'tgt_z24y7miezisykwi6',
+            '-k', 'secret_onetime_reg_key',
         ])
         returncode = self.main([
             'pki', '-o', self.out_path
@@ -252,9 +222,7 @@ class PKITestCase(TestCase):
 
             self.main([
                 'register',
-                '-e', 'alice@example.com',
-                '-p', 'password',
-                '-t', 'tgt_z24y7miezisykwi6',
+                '-k', 'secret_onetime_reg_key',
             ])
             self.main([
                 'req', '-k', key_file.name,
@@ -273,9 +241,7 @@ class PKITestCase(TestCase):
 
             self.main([
                 'register',
-                '-e', 'alice@example.com',
-                '-p', 'password',
-                '-t', 'tgt_z24y7miezisykwi6',
+                '-k', 'secret_onetime_reg_key',
             ])
             self.main([
                 'req', '-k', key_file.name,
@@ -297,9 +263,7 @@ class PKITestCase(TestCase):
 
             self.main([
                 'register',
-                '-e', 'alice@example.com',
-                '-p', 'password',
-                '-t', 'tgt_z24y7miezisykwi6',
+                '-k', 'secret_onetime_reg_key',
             ])
             self.main([
                 'req', '-k', key_file.name,
@@ -321,9 +285,7 @@ class PKITestCase(TestCase):
 
             self.main([
                 'register',
-                '-e', 'alice@example.com',
-                '-p', 'password',
-                '-t', 'tgt_z24y7miezisykwi6',
+                '-k', 'secret_onetime_reg_key',
             ])
             self.main([
                 'req', '-k', key_file.name,
@@ -350,9 +312,7 @@ class PKITestCase(TestCase):
 
             self.main([
                 'register',
-                '-e', 'alice@example.com',
-                '-p', 'password',
-                '-t', 'tgt_z24y7miezisykwi6',
+                '-k', 'secret_onetime_reg_key',
             ])
             self.main([
                 'req', '-k', key_file.name,
@@ -398,7 +358,7 @@ class CRLsTestCase(TestCase):
     Breaking the rules and testing with live CRLs.
     """
     def setUp(self):
-        super(CRLsTestCase, self).setUp()
+        super().setUp()
 
         self.out_path = tempfile.mkdtemp()
         self.crl_path = os.path.join(self.out_path, 'cloak-public-clients.crl')

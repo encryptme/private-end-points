@@ -1,5 +1,3 @@
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 from getpass import getpass
 import socket
 
@@ -14,14 +12,13 @@ from ._base import BaseCommand, CommandError
 class Command(BaseCommand):
     brief = "Register this server to your Encrypt.me team"
     description = """
-        Register this server to your Encrypt.me team. You must be an
-        administrator of a team and have permission to add new servers. You
-        should only need to do this once.
+        Register this server to your Encrypt.me team. Requires a registration
+        key obtained within the web-portal. You should only need to do this once.
     """
     epilog = "Any options not provided will be prompted for."
 
     def add_arguments(self, parser, group):
-        group.add_argument('-k', '--key', help="Slot registration authorization key")
+        group.add_argument('-k', '--key', help="Server registration authorization key")
         group.add_argument('-n', '--name', default=socket.getfqdn(), help="The name of this server. [%(default)s]")
 
     def handle(self, config, key, name, **options):
@@ -33,7 +30,7 @@ class Command(BaseCommand):
             raise CommandError("This server is already registered. If you've unregistered it from your team dashboard, you can delete {}".format(options['config_path']))
 
         if key is None:
-            key = input("Enter your Encrypt.me private end-point slot authorization key: ")
+            key = input("Enter your Encrypt.me private end-point server authorization key: ")
 
         server = Server.register(key, name)
 
