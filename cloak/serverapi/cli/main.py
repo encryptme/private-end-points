@@ -39,6 +39,8 @@ def main(argv=None, stdout=sys.stdout, stderr=sys.stderr):
         # Changing the base_url is really just for internal use.
         if args.base_url:
              config.set('serverapi', 'base_url', args.base_url)
+        else:
+            # we didn't specify one so default to what the config has
         cloak.serverapi.utils.http.base_url = config.get('serverapi', 'base_url')
 
         # The CLI layer always wants the API version that it was built for.
@@ -80,8 +82,8 @@ def parse_args(argv, stdout, stderr):
         help="Path to config file. [%(default)s]"
     )
     parser.add_argument(
-        '--base_url', dest='base_url', default=DEFAULT_BASE_URL,
-        help="Set the URL for the Encrypt.me server. [%(default)s]"
+        '--base_url', dest='base_url',
+        help="Set the URL for the Encrypt.me server."
     )
     parser.add_argument(
         '-q', '--quiet', action='store_true', help="Suppress normal output."
