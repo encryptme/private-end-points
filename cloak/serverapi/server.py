@@ -63,18 +63,28 @@ class Server(ApiResult):
 
         return cls(server_id, auth_token, result)
 
+    @classmethod
+    def wireguard_peers(cls, server_id, auth_token):
+        # type: (str, str) -> Server
+        """
+        Returns the WireGuard peers to help with self-configuration.
+        """
+        result = http.get('server/wireguard-peers/', auth=(server_id, auth_token)).json()
+
+        return result
+
     #
     # Operations
     #
 
-    UPDATABLE = ['name', 'api_version']
+    UPDATABLE = ['name', 'api_version', 'wireguard_public_key']
 
     def update_server(self, **kwargs):
         # type: (**str) -> None
         """
         Updates simple server properties.
 
-        Valid keyword args: name, api_version.
+        Valid keyword args: name, api_version, wireguard_public_key
 
         """
         updates = {
