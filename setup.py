@@ -12,7 +12,7 @@ tests_require = []
 
 setup(
     name='cloak-server',
-    version='0.2',
+    version='0.3',
     author='Encrypt.me',
     author_email='hello@encrypt.me',
     description="Tool for configuring private Encrypt.me endpoints.",
