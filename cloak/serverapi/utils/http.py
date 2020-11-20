@@ -25,6 +25,8 @@ base_url = 'https://app.encrypt.me/'
 default_api_version = None  # type: str
 
 container_version = os.environ.get('CONTAINER_VERSION')
+if not container_version and os.path.isfile('/container-version-id'):
+    container_version = open('/container-version-id', 'r').read().strip()
 
 
 def get(path, api_version=None, **kwargs):

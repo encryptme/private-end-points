@@ -23,6 +23,7 @@ COMMANDS = [
     'register',
     'req',
     'update',
+    'wireguard',
 ]
 
 DEFAULT_BASE_URL = 'https://app.encrypt.me/'
