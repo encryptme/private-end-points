@@ -39,8 +39,6 @@ def main(argv=None, stdout=sys.stdout, stderr=sys.stderr):
         # Changing the base_url is really just for internal use.
         if args.base_url:
              config.set('serverapi', 'base_url', args.base_url)
-        else:
-            # we didn't specify one so default to what the config has
         cloak.serverapi.utils.http.base_url = config.get('serverapi', 'base_url')
 
         # The CLI layer always wants the API version that it was built for.
