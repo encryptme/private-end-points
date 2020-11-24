@@ -23,6 +23,6 @@ class Command(BaseCommand):
         peers = Server.wireguard_peers(server_id, auth_token)
 
         if six.PY3:
-            json.dump(server, self.stdout)
+            json.dump(peers, self.stdout)
         else:
             print(force_text(json.dumps(peers)), file=self.stdout)
