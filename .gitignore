@@ -4,5 +4,7 @@
 /dist
 *.egg-info
 
+__pycache__/
 *.pyc
 .*.sw?
+.autoenv

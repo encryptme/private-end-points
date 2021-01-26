@@ -1,5 +1,3 @@
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import argparse
 from importlib import import_module
 import io
@@ -83,8 +81,8 @@ def parse_args(argv, stdout, stderr):
         help="Path to config file. [%(default)s]"
     )
     parser.add_argument(
-        '--base_url', dest='base_url', default=DEFAULT_BASE_URL,
-        help="Set the URL for the Encrypt.me server. [%(default)s]"
+        '--base_url', dest='base_url',
+        help="Set the URL for the Encrypt.me server."
     )
     parser.add_argument(
         '-q', '--quiet', action='store_true', help="Suppress normal output."
@@ -104,6 +102,10 @@ def parse_args(argv, stdout, stderr):
         sub.set_defaults(cmd=cmd)
 
     args = parser.parse_args(argv)
+    if not hasattr(args, 'cmd'):
+        parser.print_help();
+        sys.exit(1)
+
 
     return args
 

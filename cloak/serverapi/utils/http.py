@@ -4,8 +4,6 @@ A simple HTTP wrapper that manages standard headers and error responses.
 Most clients will want to include the 'auth' keyword argument with credentials.
 
 """
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import os
 
 import requests

@@ -1,5 +1,3 @@
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import json
 
 import six
@@ -23,9 +21,6 @@ class Command(BaseCommand):
         server = Server.retrieve(server_id, auth_token)
 
         if options['json']:
-            if six.PY3:
-                json.dump(server, self.stdout)
-            else:
-                print(force_text(json.dumps(server)), file=self.stdout)
+            json.dump(server, self.stdout)
         else:
             self._print_server(server)

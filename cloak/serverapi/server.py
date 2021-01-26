@@ -1,5 +1,3 @@
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 from base64 import b64encode
 import socket
 
@@ -158,7 +156,7 @@ class Server(ApiResult):
         self.server_id = server_id
         self.auth_token = auth_token
 
-        super(Server, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     @property
     def _api_auth(self):

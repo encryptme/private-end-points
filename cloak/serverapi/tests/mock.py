@@ -1,7 +1,6 @@
 """
 A mocking layer for the API.
 """
-from __future__ import absolute_import, division, print_function, unicode_literals
 
 from base64 import b64decode
 import io
@@ -22,7 +21,7 @@ mixed_alphabet = string.ascii_letters + string.digits
 lower_alphabet = string.ascii_lowercase + string.digits
 
 
-class MockSession(object):
+class MockSession:
     """
     Maintains the API state over a series of serverapi requests.
 
@@ -30,18 +29,20 @@ class MockSession(object):
     cloak.serverapi.utils.http.session.
 
     """
-    def __init__(self):
+    def __init__(self, def_target_id):
         # type: () -> None
         self.session = requests.Session()
 
-        self.server_id = None    # type: str
-        self.auth_token = None   # type: str
-        self.api_version = None  # type: str
-        self.name = None         # type: str
-        self.target_id = None    # type: str
+        self.server_id = None               # type: str
+        self.auth_token = None              # type: str
+        self.api_version = None             # type: str
+        self.name = None                    # type: str
+        self.auth_token = None              # type: str
+        self.target_id = None               # type: str
+        self.def_target_id = def_target_id  # type: str
 
-        self.csr = None          # type: str
-        self.pki_tag = None      # type: str
+        self.csr = None                     # type: str
+        self.pki_tag = None                 # type: str
 
     def get(self, url, **kwargs):
         # type: (str, **Any) -> requests.Response
@@ -128,15 +129,17 @@ class MockSession(object):
         # type: (requests.PreparedRequest) -> requests.Response
         data = parse_qs(force_text(request.body))
 
+        # Make sure these exist
+        data['auth_token'][0]
+        data['name'][0]
+
         self.server_id = self._public_id('srv')
         self.auth_token = ''.join(random.choice(mixed_alphabet) for i in xrange(20))
         self.api_version = force_text(request.headers['X-Cloak-API-Version'])
         self.name = data['name'][0]
-        self.target_id = data['target'][0]
+        self.auth_token = data['auth_token'][0]
+        self.target_id = self.def_target_id
 
-        # Make sure these exist
-        data['email'][0]
-        data['password'][0]
 
         result = {
             'server_id': self.server_id,

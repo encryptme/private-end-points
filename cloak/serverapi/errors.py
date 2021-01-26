@@ -1,5 +1,3 @@
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import requests  # noqa
 
 
@@ -8,4 +6,4 @@ class ServerApiError(Exception):
         # type: (requests.Response) -> None
         self.response = response
 
-        super(ServerApiError, self).__init__(response.content)
+        super().__init__(response.content)
